@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fff7ed;
+  --color-crust: #3b2415;
+  --color-jam: #c2410c;
+  --color-jam-dark: #9a3412;
+  --color-butter: #fde68a;
+  --color-mint: #d1fae5;
+  --color-blush: #fecdd3;
+  --color-paper: #fffdf8;
+}
+
+@utility btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  border-radius: 1rem; padding: .75rem 1.25rem; min-height: 3.5rem;
+  font-size: 1.125rem; font-weight: 700; box-shadow: 0 1px 2px rgb(0 0 0 / .06);
+  transition: transform .1s ease, background-color .15s ease, filter .15s ease;
+}
+@utility card {
+  border-radius: 1.5rem; background: var(--color-paper); padding: 1rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / .05); border: 1px solid rgb(59 36 21 / .1);
+}
+@utility chip {
+  display: inline-block; border-radius: 9999px; background: var(--color-blush);
+  padding: .125rem .5rem; font-size: .75rem; font-weight: 600; color: var(--color-crust);
+}
+
+.btn:active { transform: scale(.95); }
+.btn:disabled { opacity: .5; }
+.btn-primary { @apply btn bg-jam text-white hover:bg-jam-dark; }
+.btn-soft { @apply btn bg-butter text-crust hover:brightness-95; }
+.btn-ghost { @apply btn bg-white/70 text-crust border border-crust/15 hover:bg-white; }
+
+html { font-size: 17px; }
+body { background: var(--color-cream); color: var(--color-crust); font-family: ui-rounded, "Nunito", "Avenir Next", system-ui, sans-serif; }
+body.ipad { font-size: 20px; }
+
+@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+@keyframes sway { 0%, 100% { transform: rotate(-2deg) } 50% { transform: rotate(2deg) } }
+@keyframes pulse-ring { 0% { transform: scale(0.9); opacity: .7 } 100% { transform: scale(1.35); opacity: 0 } }
+@keyframes pop { 0% { transform: scale(1) } 50% { transform: scale(1.06) } 100% { transform: scale(1) } }
+.anim-bob { animation: bob 3.2s ease-in-out infinite; }
+.anim-sway { animation: sway 1.4s ease-in-out infinite; }
+.anim-ring { animation: pulse-ring 1.4s ease-out infinite; }
+.anim-pop { animation: pop .35s ease-out; }

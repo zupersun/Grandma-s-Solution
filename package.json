@@ -1,0 +1,43 @@
+{
+  "name": "grandmas-bakery",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "db:push": "drizzle-kit push",
+    "db:seed": "node --import tsx scripts/seed.mts",
+    "db:reset": "rm -f data/grandma.db && pnpm db:push && pnpm db:seed",
+    "db:studio": "drizzle-kit studio",
+    "agents:create": "node --import tsx scripts/create-agents.mts",
+    "tunnel": "cloudflared tunnel --url http://localhost:3000",
+    "smoke": "node --import tsx scripts/smoke.mts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@elevenlabs/react": "^1.16.0",
+    "@google/genai": "^2.27.0",
+    "@libsql/client": "^0.18.0",
+    "canvas-confetti": "^1.9.4",
+    "drizzle-orm": "^0.45.3",
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "stripe": "^23.0.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "drizzle-kit": "^0.31.11",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

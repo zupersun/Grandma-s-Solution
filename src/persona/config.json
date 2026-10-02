@@ -1,0 +1,27 @@
+{
+  "grandmaName": "Grandma",
+  "bakeryName": "Grandma's Bakery",
+  "rivalName": "The Bakery",
+  "currency": "CAD",
+  "languages": ["en", "es", "zh", "fr"],
+  "languageNames": { "en": "English", "es": "Español", "zh": "中文", "fr": "Français" },
+  "voteOptions": [
+    { "id": "mango", "emoji": "🥭", "label": { "en": "Mango", "es": "Mango", "zh": "芒果", "fr": "Mangue" } },
+    { "id": "ube", "emoji": "💜", "label": { "en": "Ube", "es": "Ube", "zh": "紫薯", "fr": "Ube" } },
+    { "id": "pistachio", "emoji": "🟢", "label": { "en": "Pistachio", "es": "Pistacho", "zh": "开心果", "fr": "Pistache" } },
+    { "id": "black_sesame", "emoji": "⚫", "label": { "en": "Black Sesame", "es": "Sésamo negro", "zh": "黑芝麻", "fr": "Sésame noir" } }
+  ],
+  "loyalty": { "chat": 5, "vote": 10, "suggestion": 10, "perDollar": 1, "referral": 15, "redeemAt": 100, "redeemReward": "a free drip coffee" },
+  "allergens": ["gluten", "dairy", "eggs", "nuts", "sesame", "soy"],
+  "allergenLabels": {
+    "gluten": { "en": "Gluten", "es": "Gluten", "zh": "麸质", "fr": "Gluten" },
+    "dairy": { "en": "Dairy", "es": "Lácteos", "zh": "乳制品", "fr": "Lait" },
+    "eggs": { "en": "Eggs", "es": "Huevo", "zh": "鸡蛋", "fr": "Œufs" },
+    "nuts": { "en": "Nuts", "es": "Frutos secos", "zh": "坚果", "fr": "Fruits à coque" },
+    "sesame": { "en": "Sesame", "es": "Sésamo", "zh": "芝麻", "fr": "Sésame" },
+    "soy": { "en": "Soy", "es": "Soja", "zh": "大豆", "fr": "Soja" }
+  },
+  "voices": { "customer": "XrExE9yKIg1WjnnlVkGX", "helper": "Xb7hH8MSUJpSbSDYk0k2" },
+  "agentLlm": "gemini-2.5-flash",
+  "autoSendOnlineOrders": "after_approval"
+}

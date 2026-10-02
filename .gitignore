@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+data/*.db
+data/*.db-journal
+.env
+.env.local
+.env*.local
+*.log
+.DS_Store
+drizzle/meta
+AGENTS.md
+.swarm/
+.claude-flow/
+ruvector.db
+tsconfig.tsbuildinfo
+.claude/settings.local.json

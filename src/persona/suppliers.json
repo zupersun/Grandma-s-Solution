@@ -1,0 +1,30 @@
+{
+  "suppliers": [
+    { "name": "Prairie Mills", "ingredient": "flour", "unit": "kg", "packSize": 20, "packPrice": 24, "leadDays": 3, "orderingMode": "online", "orderUrl": "https://orders.prairiemills.example", "notes": "Delivers Mondays and Thursdays." },
+    { "name": "Dairyland Co-op", "ingredient": "butter", "unit": "kg", "packSize": 10, "packPrice": 95, "leadDays": 1, "orderingMode": "in_person", "notes": "Grandma drives to the co-op on Tuesdays. Cash or cheque." },
+    { "name": "Dairyland Co-op", "ingredient": "milk", "unit": "L", "packSize": 10, "packPrice": 22, "leadDays": 1, "orderingMode": "in_person", "notes": "Same Tuesday run." },
+    { "name": "Dairyland Co-op", "ingredient": "cream", "unit": "L", "packSize": 4, "packPrice": 26, "leadDays": 1, "orderingMode": "in_person", "notes": "Same Tuesday run." },
+    { "name": "Sunny Side Eggs", "ingredient": "eggs", "unit": "dozen", "packSize": 15, "packPrice": 52, "leadDays": 1, "orderingMode": "in_person", "notes": "Farmer's stall at the Saturday market. Bring the flats back." },
+    { "name": "Ontario Orchards", "ingredient": "apple", "unit": "kg", "packSize": 10, "packPrice": 28, "leadDays": 2, "orderingMode": "online", "orderEmail": "orders@ontarioorchards.example", "notes": "Email orders, pays by invoice." },
+    { "name": "Tropical Imports Ltd", "ingredient": "mango", "unit": "kg", "packSize": 8, "packPrice": 42, "leadDays": 4, "orderingMode": "online", "orderUrl": "https://tropicalimports.example/wholesale", "notes": "Ataulfo mangoes, 4-day lead, order before Wednesday." },
+    { "name": "Tropical Imports Ltd", "ingredient": "ube", "unit": "kg", "packSize": 5, "packPrice": 38, "leadDays": 4, "orderingMode": "online", "orderUrl": "https://tropicalimports.example/wholesale", "notes": "Frozen grated ube." },
+    { "name": "Sweet & Co Wholesale", "ingredient": "sugar", "unit": "kg", "packSize": 20, "packPrice": 30, "leadDays": 2, "orderingMode": "online", "orderUrl": "https://sweetandco.example", "notes": "" },
+    { "name": "Sweet & Co Wholesale", "ingredient": "vanilla", "unit": "L", "packSize": 1, "packPrice": 45, "leadDays": 2, "orderingMode": "online", "orderUrl": "https://sweetandco.example", "notes": "Madagascar extract." },
+    { "name": "Sweet & Co Wholesale", "ingredient": "cinnamon", "unit": "kg", "packSize": 1, "packPrice": 18, "leadDays": 2, "orderingMode": "online", "orderUrl": "https://sweetandco.example", "notes": "" },
+    { "name": "Sweet & Co Wholesale", "ingredient": "chocolate", "unit": "kg", "packSize": 5, "packPrice": 60, "leadDays": 2, "orderingMode": "online", "orderUrl": "https://sweetandco.example", "notes": "70 percent callets." },
+    { "name": "Sweet & Co Wholesale", "ingredient": "coconut_cream", "unit": "L", "packSize": 6, "packPrice": 21, "leadDays": 2, "orderingMode": "online", "orderUrl": "https://sweetandco.example", "notes": "" },
+    { "name": "Nutty Brothers", "ingredient": "pistachio", "unit": "kg", "packSize": 2, "packPrice": 48, "leadDays": 0, "orderingMode": "in_person", "notes": "Stall in Kensington Market. Grandma haggles." },
+    { "name": "Nutty Brothers", "ingredient": "black_sesame", "unit": "kg", "packSize": 2, "packPrice": 22, "leadDays": 0, "orderingMode": "in_person", "notes": "Same stall." },
+    { "name": "Bean There Roasters", "ingredient": "coffee", "unit": "kg", "packSize": 5, "packPrice": 110, "leadDays": 2, "orderingMode": "online", "orderUrl": "https://beanthere.example/wholesale", "notes": "Medium roast house blend." },
+    { "name": "Levain Supply", "ingredient": "yeast", "unit": "kg", "packSize": 1, "packPrice": 14, "leadDays": 5, "orderingMode": "online", "orderEmail": "hello@levainsupply.example", "notes": "" }
+  ],
+  "inventory": {
+    "flour": 18, "butter": 6, "sugar": 9, "eggs": 5, "milk": 8, "cream": 2, "mango": 3, "apple": 7, "ube": 1.5,
+    "chocolate": 2, "pistachio": 0.5, "black_sesame": 1, "coffee": 2.5, "yeast": 0.4, "vanilla": 0.3, "cinnamon": 0.4, "coconut_cream": 2
+  },
+  "ingredientLabels": {
+    "flour": "Flour", "butter": "Butter", "sugar": "Sugar", "eggs": "Eggs", "milk": "Milk", "cream": "Cream", "mango": "Mango",
+    "apple": "Apples", "ube": "Ube", "chocolate": "Chocolate", "pistachio": "Pistachios", "black_sesame": "Black sesame",
+    "coffee": "Coffee beans", "yeast": "Yeast", "vanilla": "Vanilla", "cinnamon": "Cinnamon", "coconut_cream": "Coconut cream"
+  }
+}
