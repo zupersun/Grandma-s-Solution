@@ -1,5 +1,49 @@
 # Grandma's Bakery
 
+## Try it now
+
+| | Link |
+|---|---|
+| **Customers** (phone or laptop) | https://tuition-midlands-subaru-characteristic.trycloudflare.com |
+| **Grandma's in-store screen** | https://tuition-midlands-subaru-characteristic.trycloudflare.com/grandma |
+
+Open both at once, ideally the first on a phone and the second on a laptop, and watch them talk to each other.
+
+> These are live tunnel links to the demo machine and only work while it is running. Everything
+> below runs locally too; see Quick start.
+
+### A 90-second walkthrough
+
+1. **On the phone**, tap a chip such as *Order ahead*. Grandma glides up, starts glowing, and speaks
+   in a cloned voice. Allow the microphone and talk to her, or type instead. Try switching to
+   한국어 with the globe button and she changes language mid-conversation.
+2. **Ask her something real**: "do the pistachio croissants have nuts?" She answers only from the
+   menu data and never guesses. Say "I wish you made more ube" and she logs it for the back office.
+3. **Order and pay.** You get a pickup code.
+4. **Watch Grandma's screen.** Within two seconds a banner announces the order with a chime and the
+   card appears on her board. Tap it to move it along; a 10-second Undo appears.
+5. **Open her Helper tab** and say, or type, "push puddings this month". The buying plan rewrites
+   itself: egg, milk and sugar lines grow, and every line explains itself in a sentence.
+6. **Press Approve.** Online suppliers get orders sent for her with confirmation numbers;
+   the rest becomes a ticked-off shopping list grouped by which trip she makes.
+
+Bring as many devices as you like. Each keeps its own identity, cart, points and language, and all
+of them land on the one screen.
+
+### What is actually happening
+
+- Grandma's voice is an **ElevenLabs agent** with a cloned voice, and her tools write directly to the
+  database: adding to a cart, placing an order, recording a vote, logging a request.
+- The buying plan is **computed in code** from 30 days of sales, customer requests, votes and
+  Grandma's own wishes. The language model only parses what she says and writes the explanations,
+  so no quantity or price is ever invented.
+- Chat signals can move a forecast by at most 20 percent. Real purchases dominate. Grandma's
+  directives override everything.
+- If voice is unavailable or the plan's concurrency cap is reached, customers fall back to typing to
+  Grandma on Gemini. Nobody sees an error.
+
+All data is fictional: suppliers, customers, past conversations and sales history are seeded.
+
 Grandma's Bakery has run for three generations. "The Bakery" opened next door and sells
 suspiciously similar goods. This gives Grandma two things she didn't have:
 
@@ -42,7 +86,7 @@ Open `/` for the customer app and `/grandma` for Grandma's iPad.
 
 - **`/` — customer app.** Animated Grandma, voice or text, menu with allergen chips, order
   ahead with a pickup code, loyalty points, flavour-of-the-month vote, suggestion box.
-- **`/grandma` — the iPad.** Orders board (polls every 3 s), Till, customer feedback, and the
+- **`/grandma` — the iPad.** Orders board (polls every 2 s), Till, customer feedback, and the
   Helper, who holds the buying plan and takes directives like "push puddings this month".
 - **`/api/*` — backend and Brain.** Quantities are computed in code; the LLM only parses
   directives and writes explanations, so the plan is deterministic and never invented.
