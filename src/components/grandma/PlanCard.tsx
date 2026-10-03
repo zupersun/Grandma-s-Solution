@@ -1,80 +1,190 @@
 "use client";
-import { useState } from "react";
+/* The buying plan, written for Grandma: one headline number, one clear action, and two plain lists.
+   Layout borrows Ramp's calm ledger style; wording avoids jargon and rounds every number. */
+import { useEffect, useState } from "react";
 import type { Plan, SupplierOrder } from "@/hooks/useBrain";
+import type { PlanLine } from "@/lib/db/schema";
 import supplierData from "@/persona/suppliers.json";
+import { BORDER, C } from "@/lib/ui";
 
 const LABELS = supplierData.ingredientLabels as Record<string, string>;
 const label = (i: string) => LABELS[i] ?? i;
+const dollars = (n: number) => `$${Math.round(n).toLocaleString()}`;
+
+const sheet: React.CSSProperties = { background: C.white, border: BORDER, borderRadius: 16, overflow: "hidden" };
+const sectionHead: React.CSSProperties = { display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, padding: "20px 24px", borderBottom: BORDER };
+const eyebrow: React.CSSProperties = { margin: 0, fontSize: 14, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.muted };
+const bigBtn = (solid: boolean): React.CSSProperties => ({
+  minHeight: 68, padding: "0 32px", borderRadius: 34, font: "inherit", fontSize: 21, fontWeight: 700, cursor: "pointer",
+  ...(solid ? { background: C.maroon, color: C.white, border: 0, boxShadow: "0 6px 18px rgba(90,26,31,.24)" } : { background: C.white, color: C.text, border: BORDER }),
+});
+
+function Group({ title, note, lines, done, onToggle }: { title: string; note: string; lines: PlanLine[]; done?: Record<string, boolean>; onToggle?: (k: string) => void }) {
+  const total = lines.reduce((s, l) => s + l.cost, 0);
+  return (
+    <div style={{ borderTop: BORDER }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, padding: "16px 24px 8px" }}>
+        <div>
+          <p style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{title}</p>
+          {note && <p style={{ margin: "2px 0 0", fontSize: 16, color: C.muted }}>{note}</p>}
+        </div>
+        <span style={{ fontSize: 20, fontWeight: 700, whiteSpace: "nowrap" }}>{dollars(total)}</span>
+      </div>
+      <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+        {lines.map((l) => {
+          const key = `${title}:${l.ingredient}`;
+          const checked = done?.[key] ?? false;
+          return (
+            <li key={l.ingredient} className="gm-row" style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 24px", borderTop: BORDER }}>
+              {onToggle && (
+                <input type="checkbox" className="gm-check" checked={checked} onChange={() => onToggle(key)} aria-label={`Bought ${label(l.ingredient)}`} />
+              )}
+              <span style={{ flex: 1, minWidth: 0, fontSize: 21, textDecoration: checked ? "line-through" : "none", opacity: checked ? 0.5 : 1 }}>
+                <b style={{ fontWeight: 700 }}>{label(l.ingredient)}</b>
+                <span style={{ color: C.muted }}> — {l.qty} {l.unit}</span>
+              </span>
+              <span style={{ fontSize: 20, fontWeight: 700, whiteSpace: "nowrap" }}>{dollars(l.cost)}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
 
 export function PlanCard({ plan, supplierOrders, loading, error, note, onMake, onApprove, onDirective }: {
   plan: Plan | null; supplierOrders: SupplierOrder[]; loading: boolean; error: string | null; note: string | null;
   onMake: () => void; onApprove: () => void; onDirective: (text: string) => void;
 }) {
-  const [more, setMore] = useState(false);
+  const [why, setWhy] = useState(false);
   const [text, setText] = useState("");
   const [confirm, setConfirm] = useState(false);
+  const [done, setDone] = useState<Record<string, boolean>>({});
+
+  useEffect(() => { try { setDone(JSON.parse(localStorage.getItem("grandma.bought") || "{}")); } catch {} }, []);
+  const toggle = (k: string) => setDone((d) => { const n = { ...d, [k]: !d[k] }; try { localStorage.setItem("grandma.bought", JSON.stringify(n)); } catch {} return n; });
+
   const online = plan?.lines.filter((l) => l.orderingMode === "online") ?? [];
   const inPerson = plan?.lines.filter((l) => l.orderingMode === "in_person") ?? [];
+  const onlineCost = online.reduce((s, l) => s + l.cost, 0);
+  const inPersonCost = inPerson.reduce((s, l) => s + l.cost, 0);
   const sent = supplierOrders.filter((o) => o.mode === "online");
   const listed = supplierOrders.filter((o) => o.mode === "in_person");
+  const approved = plan ? plan.status !== "draft" : false;
+
+  const byTrip = (lines: PlanLine[]) => {
+    const groups = new Map<string, PlanLine[]>();
+    for (const l of lines) { const arr = groups.get(l.supplierName) ?? []; arr.push(l); groups.set(l.supplierName, arr); }
+    return [...groups.entries()];
+  };
+  const tripNote = (supplier: string) => listed.find((o) => o.supplierName === supplier)?.trip ?? "";
+
+  if (!plan) {
+    return (
+      <div style={{ ...sheet, padding: 32, textAlign: "center" }}>
+        <p style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>No shopping plan yet</p>
+        <p style={{ margin: "10px 0 24px", fontSize: 20, color: C.muted, lineHeight: 1.5 }}>I look at what sold, what people asked for, and what you told me. Then I write your list.</p>
+        {error && <p style={{ margin: "0 0 16px", padding: "12px 16px", background: C.bubble, borderRadius: 14, fontSize: 18 }}>{error}</p>}
+        <button className="gm-press" style={bigBtn(true)} onClick={onMake} disabled={loading}>{loading ? "Working on it…" : "Make my list"}</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="card">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-2xl font-black">🧺 What to buy</h2>
-          <div className="flex gap-2">
-            <button className="btn-soft" onClick={onMake} disabled={loading}>{loading ? "Thinking…" : plan ? "Make a new plan" : "Make my plan"}</button>
-            {plan && plan.status === "draft" && !confirm && <button className="btn-primary" onClick={() => setConfirm(true)} disabled={loading}>Approve</button>}
-            {confirm && <button className="btn-primary" onClick={() => { setConfirm(false); onApprove(); }}>Yes, order it ✓</button>}
-            {confirm && <button className="btn-ghost" onClick={() => setConfirm(false)}>Not yet</button>}
-          </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Headline: one number, one sentence, one action */}
+      <div style={{ ...sheet, padding: "28px 24px" }}>
+        <p style={eyebrow}>What to buy {plan.period.replace(/\(|\)/g, "")}</p>
+        <p style={{ margin: "10px 0 0", fontSize: 56, fontWeight: 700, lineHeight: 1, color: C.maroon, letterSpacing: "-1px" }}>{dollars(plan.totalCost)}</p>
+        <p style={{ margin: "10px 0 0", fontSize: 21, lineHeight: 1.5 }}>{plan.summary}</p>
+
+        <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginTop: 22, paddingTop: 20, borderTop: BORDER }}>
+          <div><p style={eyebrow}>I order these</p><p style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 700 }}>{dollars(onlineCost)}</p></div>
+          <div><p style={eyebrow}>You pick up</p><p style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 700 }}>{dollars(inPersonCost)}</p></div>
+          <div><p style={eyebrow}>Status</p><p style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 700, color: approved ? "#2f6b43" : C.muted }}>{approved ? "Ordered" : "Waiting for you"}</p></div>
         </div>
-        {error && <p className="mt-2 rounded-xl bg-blush px-3 py-2">{error}</p>}
-        {note && <p className="mt-2 rounded-xl bg-butter px-3 py-2 text-lg">{note}</p>}
-        {plan ? (
-          <>
-            <p className="mt-3 text-2xl font-black">About ${Math.round(plan.totalCost).toLocaleString()} · {plan.period} · {plan.status === "draft" ? "waiting for you" : plan.status === "sent" ? "ordered ✓" : "approved"}</p>
-            <p className="mt-1 text-xl leading-relaxed">{plan.summary}</p>
-            {plan.flags.length > 0 && (
-              <ul className="mt-2 space-y-1">{plan.flags.slice(0, more ? 99 : 2).map((f, i) => <li key={i} className="rounded-xl bg-blush/70 px-3 py-1.5">⚠️ {f}</li>)}</ul>
-            )}
-            <button className="mt-2 text-jam font-bold underline" onClick={() => setMore((m) => !m)}>{more ? "Show less" : "Tell me more"}</button>
-          </>
-        ) : <p className="mt-2 text-lg opacity-70">No plan yet. Tap “Make my plan” or just tell your helper what you want.</p>}
+
+        {error && <p style={{ margin: "18px 0 0", padding: "12px 16px", background: C.bubble, borderRadius: 14, fontSize: 18 }}>{error}</p>}
+        {note && <p style={{ margin: "18px 0 0", padding: "12px 16px", background: C.tint, border: `0.75px solid ${C.tintLine}`, borderRadius: 14, fontSize: 20 }}>{note}</p>}
+
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 22 }}>
+          {!approved && !confirm && <button className="gm-press" style={bigBtn(true)} onClick={() => setConfirm(true)} disabled={loading}>Yes, order it all</button>}
+          {!approved && <button className="gm-press" style={bigBtn(false)} onClick={onMake} disabled={loading}>{loading ? "Working on it…" : "Start over"}</button>}
+          {approved && <span style={{ fontSize: 20, fontWeight: 600, color: "#2f6b43" }}>Done. I sent the orders and wrote your list below.</span>}
+        </div>
+
+        {confirm && (
+          <div role="dialog" aria-label="Confirm the order" style={{ marginTop: 18, padding: 24, background: C.tint, border: `2px solid ${C.maroon}`, borderRadius: 16 }}>
+            <p style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Spend about {dollars(plan.totalCost)}?</p>
+            <p style={{ margin: "8px 0 18px", fontSize: 19, lineHeight: 1.5 }}>I will send {dollars(onlineCost)} of orders to your suppliers now. The other {dollars(inPersonCost)} stays on your list to pick up yourself.</p>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <button className="gm-press" style={bigBtn(true)} onClick={() => { setConfirm(false); onApprove(); }}>Yes, send it</button>
+              <button className="gm-press" style={bigBtn(false)} onClick={() => setConfirm(false)}>No, not yet</button>
+            </div>
+          </div>
+        )}
       </div>
 
-      <form className="card flex gap-2" onSubmit={(e) => { e.preventDefault(); if (text.trim()) { onDirective(text); setText(""); } }}>
-        <input className="min-h-14 flex-1 rounded-2xl border border-crust/20 bg-white px-4 text-lg" placeholder="Tell your helper something, like “push puddings this month”" value={text} onChange={(e) => setText(e.target.value)} />
-        <button className="btn-soft" type="submit" disabled={loading}>Tell</button>
+      {/* Tell the helper something */}
+      <form style={{ ...sheet, padding: 20, display: "flex", gap: 12, flexWrap: "wrap" }} onSubmit={(e) => { e.preventDefault(); if (text.trim()) { onDirective(text); setText(""); } }}>
+        <label htmlFor="gm-directive" style={{ ...eyebrow, flexBasis: "100%" }}>Want something different?</label>
+        <input id="gm-directive" value={text} onChange={(e) => setText(e.target.value)} placeholder="Such as: make more puddings this month"
+          style={{ flex: 1, minWidth: 240, height: 64, boxSizing: "border-box", padding: "0 22px", border: BORDER, borderRadius: 32, font: "inherit", fontSize: 20, background: C.white, color: C.text }} />
+        <button className="gm-press" type="submit" style={bigBtn(true)} disabled={loading}>Tell me</button>
       </form>
 
-      {plan && (
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="card">
-            <h3 className="text-xl font-black">🖥️ Ordered online for you {sent.length ? "✓" : ""}</h3>
-            {sent.length ? sent.map((o) => (
-              <div key={o.id} className="mt-2 rounded-2xl bg-mint p-3">
-                <div className="font-bold">{o.supplierName} · sent · ref {o.reference} · ${o.total.toFixed(2)}</div>
-                {more && <pre className="mt-1 whitespace-pre-wrap text-sm">{o.text}</pre>}
-              </div>
-            )) : (
-              <ul className="mt-2 space-y-1 text-lg">{online.map((l) => <li key={l.ingredient}><b>{label(l.ingredient)}</b> {l.qty} {l.unit} · {l.supplierName} · ${l.cost.toFixed(0)}{more && <span className="block text-sm opacity-70">{l.reason}</span>}</li>)}</ul>
-            )}
+      {/* I order these */}
+      <div style={sheet}>
+        <div style={sectionHead}>
+          <div>
+            <p style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>I order these for you</p>
+            <p style={{ margin: "4px 0 0", fontSize: 17, color: C.muted }}>{approved ? "Sent. Nothing for you to do." : "Nothing is sent until you say yes."}</p>
           </div>
-          <div className="card">
-            <h3 className="text-xl font-black">🚗 Your shopping list</h3>
-            {listed.length ? listed.map((o) => (
-              <div key={o.id} className="mt-2 rounded-2xl bg-butter p-3">
-                <div className="font-bold">{o.supplierName} · {o.trip}</div>
-                <ul className="text-lg">{o.lines.map((l) => <li key={l.ingredient}>☐ {label(l.ingredient)} {l.qty} {l.unit} · about ${l.cost.toFixed(0)}</li>)}</ul>
-              </div>
-            )) : (
-              <ul className="mt-2 space-y-1 text-lg">{inPerson.map((l) => <li key={l.ingredient}><b>{label(l.ingredient)}</b> {l.qty} {l.unit} · {l.supplierName} · ${l.cost.toFixed(0)}{more && <span className="block text-sm opacity-70">{l.reason}</span>}</li>)}</ul>
-            )}
-          </div>
+          <span style={{ fontSize: 24, fontWeight: 700 }}>{dollars(onlineCost)}</span>
         </div>
-      )}
+        {sent.length > 0 && (
+          <div style={{ padding: "16px 24px", background: "#f1f7f3", borderBottom: BORDER }}>
+            {sent.map((o) => <p key={o.id} style={{ margin: "4px 0", fontSize: 18 }}><b>{o.supplierName}</b> · sent · confirmation {o.reference}</p>)}
+          </div>
+        )}
+        {byTrip(online).map(([supplier, lines]) => <Group key={supplier} title={supplier} note="" lines={lines} />)}
+      </div>
+
+      {/* You pick up */}
+      <div style={sheet}>
+        <div style={sectionHead}>
+          <div>
+            <p style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>You pick these up</p>
+            <p style={{ margin: "4px 0 0", fontSize: 17, color: C.muted }}>Tick each one off as you buy it.</p>
+          </div>
+          <span style={{ fontSize: 24, fontWeight: 700 }}>{dollars(inPersonCost)}</span>
+        </div>
+        {byTrip(inPerson).map(([supplier, lines]) => <Group key={supplier} title={supplier} note={tripNote(supplier)} lines={lines} done={done} onToggle={toggle} />)}
+      </div>
+
+      {/* Why */}
+      <div style={sheet}>
+        <button className="gm-press" onClick={() => setWhy((w) => !w)} aria-expanded={why}
+          style={{ width: "100%", minHeight: 68, padding: "0 24px", border: 0, background: C.white, font: "inherit", fontSize: 21, fontWeight: 700, textAlign: "left", cursor: "pointer", color: C.maroon }}>
+          {why ? "Hide why" : "Why these amounts?"}
+        </button>
+        {why && (
+          <div style={{ padding: "0 24px 24px" }}>
+            {plan.flags.length > 0 && (
+              <ul style={{ margin: "0 0 18px", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
+                {plan.flags.map((f, i) => <li key={i} style={{ padding: "14px 18px", background: C.bubble, borderRadius: 14, fontSize: 19, lineHeight: 1.45 }}>{f}</li>)}
+              </ul>
+            )}
+            <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 12 }}>
+              {plan.lines.map((l) => (
+                <li key={l.ingredient} style={{ fontSize: 19, lineHeight: 1.45, paddingBottom: 12, borderBottom: BORDER }}>
+                  <b>{label(l.ingredient)}</b>, {l.qty} {l.unit} from {l.supplierName}. {l.reason}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

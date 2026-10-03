@@ -2,51 +2,58 @@
 import { useState } from "react";
 import type { MenuItem } from "@/hooks/useMenu";
 import type { Order } from "@/hooks/useOrders";
+import { BORDER, C, card, h2, pill } from "@/lib/ui";
 
 export function Till({ menu, onCreate }: { menu: MenuItem[]; onCreate: (items: { slug: string; qty: number }[], paidHow: "counter" | "card") => Promise<Order> }) {
   const [lines, setLines] = useState<Record<string, number>>({});
   const [done, setDone] = useState<Order | null>(null);
   const [busy, setBusy] = useState(false);
   const total = Object.entries(lines).reduce((s, [slug, qty]) => s + (menu.find((m) => m.slug === slug)?.price ?? 0) * qty, 0);
-  const add = (slug: string) => setLines((l) => ({ ...l, [slug]: (l[slug] ?? 0) + 1 }));
+
   const finish = async (paidHow: "counter" | "card") => {
     setBusy(true);
-    try {
-      const order = await onCreate(Object.entries(lines).map(([slug, qty]) => ({ slug, qty })), paidHow);
-      setDone(order); setLines({}); setTimeout(() => setDone(null), 6000);
-    } finally { setBusy(false); }
+    try { const o = await onCreate(Object.entries(lines).map(([slug, qty]) => ({ slug, qty })), paidHow); setDone(o); setLines({}); setTimeout(() => setDone(null), 7000); }
+    finally { setBusy(false); }
   };
+
   return (
-    <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+    <div style={{ display: "grid", gap: 20, gridTemplateColumns: "minmax(0, 2fr) minmax(300px, 1fr)" }}>
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
         {menu.map((m) => (
-          <button key={m.slug} onClick={() => add(m.slug)} className="card flex min-h-28 flex-col items-center justify-center text-center active:scale-95">
-            <span className="text-4xl">{m.emoji}</span>
-            <span className="font-bold leading-tight">{m.names.en}</span>
-            <span className="text-sm opacity-70">${m.price.toFixed(2)}</span>
+          <button key={m.slug} className="gm-press" onClick={() => setLines((l) => ({ ...l, [m.slug]: (l[m.slug] ?? 0) + 1 }))}
+            style={{ ...card, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, minHeight: 112, cursor: "pointer", font: "inherit", textAlign: "center" }}>
+            <span style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.25 }}>{m.names.en}</span>
+            <span style={{ fontSize: 15, color: C.muted }}>${m.price.toFixed(2)}</span>
           </button>
         ))}
       </div>
-      <div className="card flex flex-col gap-2">
-        <h2 className="text-2xl font-black">This order</h2>
+      <div style={{ ...card, display: "flex", flexDirection: "column", gap: 12, alignSelf: "start", position: "sticky", top: 20 }}>
+        <h2 style={h2}>This order</h2>
         {done ? (
-          <div className="rounded-2xl bg-mint p-4 text-center anim-pop">
-            <div className="text-sm font-bold">Pickup code</div>
-            <div className="text-6xl font-black">{done.pickupCode}</div>
-            <div className="opacity-70">${done.total.toFixed(2)} paid</div>
+          <div style={{ padding: 20, textAlign: "center", background: C.bubble, borderRadius: 18 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: C.muted }}>Pickup code</div>
+            <div style={{ fontSize: 60, fontWeight: 700, color: C.maroon, lineHeight: 1.1 }}>{done.pickupCode}</div>
+            <div style={{ fontSize: 17, color: C.muted }}>${done.total.toFixed(2)} paid</div>
           </div>
         ) : (
           <>
-            <ul className="flex-1 space-y-1 text-lg">
+            <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8, fontSize: 17, minHeight: 80 }}>
               {Object.entries(lines).map(([slug, qty]) => {
-                const m = menu.find((x) => x.slug === slug)!;
-                return <li key={slug} className="flex justify-between"><span>{qty} × {m.emoji} {m.names.en}</span><button className="rounded-full bg-blush px-3" onClick={() => setLines((l) => { const n = { ...l }; if (--n[slug] <= 0) delete n[slug]; return n; })}>−</button></li>;
+                const m = menu.find((x) => x.slug === slug);
+                if (!m) return null;
+                return (
+                  <li key={slug} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, borderBottom: BORDER, paddingBottom: 8 }}>
+                    <span>{qty} × {m.names.en}</span>
+                    <button className="gm-press" onClick={() => setLines((l) => { const n = { ...l }; if (--n[slug] <= 0) delete n[slug]; return n; })}
+                      style={{ width: 40, height: 40, borderRadius: 20, border: BORDER, background: C.white, cursor: "pointer", font: "inherit", fontSize: 20, lineHeight: 1 }}>−</button>
+                  </li>
+                );
               })}
-              {!Object.keys(lines).length && <li className="opacity-50">Tap items to add them.</li>}
+              {!Object.keys(lines).length && <li style={{ color: C.muted }}>Tap items to add them.</li>}
             </ul>
-            <div className="text-3xl font-black">${total.toFixed(2)}</div>
-            <button className="btn-primary" disabled={!total || busy} onClick={() => finish("counter")}>💵 Paid at counter</button>
-            <button className="btn-soft" disabled={!total || busy} onClick={() => finish("card")}>💳 Card</button>
+            <div style={{ fontSize: 34, fontWeight: 700, color: C.maroon }}>${total.toFixed(2)}</div>
+            <button className="gm-press" style={{ ...pill("solid"), width: "100%" }} disabled={!total || busy} onClick={() => finish("counter")}>Paid at counter</button>
+            <button className="gm-press" style={{ ...pill("soft"), width: "100%" }} disabled={!total || busy} onClick={() => finish("card")}>Card</button>
           </>
         )}
       </div>
