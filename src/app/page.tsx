@@ -259,7 +259,7 @@ function Shelves() {
 
 function Awning() {
   return (
-    <SafeImg src="/grandma/awning.svg" width={489} height={251} style={{ position: "absolute", left: -85, top: -90, display: "block", pointerEvents: "none" }}
+    <SafeImg src="/grandma/awning.png" width={489} height={251} style={{ position: "absolute", left: -85, top: -90, display: "block", pointerEvents: "none" }}
       fallback={
         <div aria-hidden style={{ position: "absolute", left: 0, top: 0, width: 402, height: 86, pointerEvents: "none", background: "repeating-linear-gradient(90deg, #a3243b 0 30px, #f6f1eb 30px 60px)", borderBottomLeftRadius: "50% 26px", borderBottomRightRadius: "50% 26px", boxShadow: "0 6px 14px rgba(43,34,34,.12)" }} />
       } />
