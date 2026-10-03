@@ -1,17 +1,57 @@
-node_modules
-.next
-out
-data/*.db
-data/*.db-journal
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Build output
+.next/
+out/
+build/
+dist/
+next-env.d.ts
+*.tsbuildinfo
+
+# Secrets — never commit
 .env
 .env.local
 .env*.local
-*.log
-.DS_Store
-drizzle/meta
-AGENTS.md
+!.env.example
+
+# Local database
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+drizzle/meta/
+
+# Agent tooling scratch (ruflo, claude-flow, agentdb)
 .swarm/
 .claude-flow/
+.hive-mind/
+agentdb.rvf
+agentdb.rvf.lock
 ruvector.db
-tsconfig.tsbuildinfo
+memory/
+AGENTS.md
 .claude/settings.local.json
+.claude/proven-config.json
+.claude/.proven-config-version
+
+# Deploy / tooling caches
+.vercel/
+.turbo/
+.cache/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
