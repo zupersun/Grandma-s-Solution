@@ -113,3 +113,12 @@ body.ipad { font-size: 20px; }
   transition: background-color 150ms, border-color 150ms; }
 .gm-check:checked { background: #5a1a1f; border-color: #5a1a1f; }
 .gm-check:checked::after { content: ""; width: 16px; height: 9px; border-left: 3px solid #fff; border-bottom: 3px solid #fff; transform: rotate(-45deg) translate(1px, -2px); }
+
+/* Fit the fixed 402x874 phone frame to any screen, including short laptops and real phones. */
+.gm-stage{min-height:100dvh;display:grid;place-items:center;background:#efedea;padding:0;overflow:hidden}
+.gm-frame{transform-origin:center center;border-radius:20px;box-shadow:0 12px 48px rgba(43,34,34,.18);
+  transform:scale(min(1, calc((100dvh - 24px) / 874), calc((100vw - 24px) / 402)))}
+@media (max-width:430px){
+  .gm-stage{padding:0;background:#f9f8f7}
+  .gm-frame{border-radius:0;box-shadow:none;transform:scale(min(calc(100dvw / 402), calc(100dvh / 874)))}
+}

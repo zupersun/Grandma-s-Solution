@@ -131,9 +131,9 @@ function Bakeria() {
   const status = voice.status === "connecting" ? t.connecting : talking ? t.speaking : live && voice.isMuted ? t.idle : listening ? t.listening : t.idle;
 
   return (
-    <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#efedea", padding: 16 }}>
+    <main className="gm-stage">
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&display=swap" />
-      <div style={{ position: "relative", width: 402, height: 874, overflow: "hidden", background: "#f9f8f7", fontFamily: "'Hanken Grotesk', system-ui, sans-serif", color: "#2b2222", borderRadius: 20, boxShadow: "0 12px 48px rgba(43,34,34,.18)" }}>
+      <div className="gm-frame" style={{ position: "relative", width: 402, height: 874, overflow: "hidden", background: "#f9f8f7", fontFamily: "'Hanken Grotesk', system-ui, sans-serif", color: "#2b2222" }}>
 
         <div className="t-page-slide" data-page={screen === "voice" ? "2" : "1"} style={{ position: "absolute", inset: 0 }}>
           {/* ---------- Home ---------- */}
@@ -149,7 +149,7 @@ function Bakeria() {
               </button>
             </div>
             <button className="gm-press" onClick={() => setSheet(true)} aria-label={t.language}
-              style={{ position: "absolute", left: 192, top: 804, display: "block", width: 24, height: 24, padding: 0, border: 0, background: "none", cursor: "pointer" }}>
+              style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", top: 690, display: "flex", alignItems: "center", justifyContent: "center", width: 48, height: 48, padding: 0, border: 0, background: "none", cursor: "pointer" }}>
               <Globe name="globe" />
             </button>
             <div style={{ position: "absolute", left: 24, right: 24, top: 170, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
