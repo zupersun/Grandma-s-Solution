@@ -1,0 +1,67 @@
+"use client";
+/* Watches everything customers do and turns it into plain sentences for Grandma.
+   Each poll is diffed against what we have already seen, so only genuinely new things speak up. */
+import { useEffect, useRef, useState } from "react";
+import type { Order } from "./useOrders";
+import type { Request, Suggestion } from "./useFeedback";
+
+export type LiveEvent = { key: string; kind: "order" | "ask" | "idea" | "vote"; text: string; at: number };
+
+const chime = (high: boolean) => {
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    g.gain.value = 0.07; osc.frequency.value = high ? 980 : 720;
+    osc.connect(g); g.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.14);
+  } catch {}
+};
+
+export function useLiveFeed(input: {
+  orders: Order[]; suggestions: Suggestion[]; requests: Request[]; tally: Record<string, number>;
+  voteLabels: Record<string, string>;
+}) {
+  const [events, setEvents] = useState<LiveEvent[]>([]);
+  const seen = useRef<{ ready: boolean; orders: Set<string>; sug: Set<number>; req: Set<number>; tally: Record<string, number> }>({
+    ready: false, orders: new Set(), sug: new Set(), req: new Set(), tally: {},
+  });
+
+  useEffect(() => {
+    const s = seen.current;
+    const fresh: LiveEvent[] = [];
+    const now = Date.now();
+
+    for (const o of input.orders) {
+      if (s.orders.has(o.id)) continue;
+      s.orders.add(o.id);
+      if (!s.ready) continue;
+      const items = o.items.map((l) => `${l.qty} ${l.names.en}`).join(", ");
+      fresh.push({ key: `o${o.id}`, kind: "order", at: now, text: `${o.customerName ?? "Someone"} ordered ${items}` });
+    }
+    for (const r of input.requests) {
+      if (s.req.has(r.id)) continue;
+      s.req.add(r.id);
+      if (!s.ready) continue;
+      fresh.push({ key: `r${r.id}`, kind: "ask", at: now, text: `Someone asked you for ${r.itemHint || r.text}` });
+    }
+    for (const g of input.suggestions) {
+      if (s.sug.has(g.id)) continue;
+      s.sug.add(g.id);
+      if (!s.ready) continue;
+      fresh.push({ key: `s${g.id}`, kind: "idea", at: now, text: `New idea for you: “${g.text}”` });
+    }
+    for (const [id, n] of Object.entries(input.tally)) {
+      const before = s.tally[id];
+      s.tally[id] = n;
+      if (!s.ready || before === undefined || n <= before) continue;
+      fresh.push({ key: `v${id}${n}`, kind: "vote", at: now, text: `Someone voted for ${input.voteLabels[id] ?? id}` });
+    }
+
+    if (!s.ready) { s.ready = true; return; }
+    if (!fresh.length) return;
+    chime(fresh.some((e) => e.kind === "order"));
+    setEvents((prev) => [...fresh, ...prev].slice(0, 40));
+  }, [input.orders, input.suggestions, input.requests, input.tally, input.voteLabels]);
+
+  const clear = () => setEvents([]);
+  return { events, clear };
+}

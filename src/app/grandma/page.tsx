@@ -14,6 +14,8 @@ import { OrderBoard } from "@/components/grandma/OrderBoard";
 import { Till } from "@/components/grandma/Till";
 import { FeedbackFeed, SummaryCard } from "@/components/grandma/FeedbackFeed";
 import { PlanCard } from "@/components/grandma/PlanCard";
+import { LiveBanner } from "@/components/grandma/LiveBanner";
+import { useLiveFeed } from "@/hooks/useLiveFeed";
 import { HelperPanel } from "@/components/grandma/HelperPanel";
 import { BORDER, C, FONT } from "@/lib/ui";
 
@@ -32,12 +34,18 @@ function Screen() {
   const [tab, setTab] = useState<Tab>("orders");
   const { items: menu } = useMenu();
   const live = useOrders({ status: ["new", "making", "ready"], pollMs: 2000 });
+  const recent = useOrders({ pollMs: 2500, limit: 25 });
   const votes = useVotes("grandma", 4000);
   const suggestions = useSuggestions(undefined, 4000);
   const requests = useRequests(4000);
   const { stats } = useStats(5000);
   const brain = useBrain("en");
   const waiting = (stats?.live.new ?? 0) + (stats?.live.making ?? 0);
+  const voteLabels = useMemo(() => Object.fromEntries(votes.options.map((o) => [o.id, o.label.en])), [votes.options]);
+  const feed = useLiveFeed({ orders: recent.orders, suggestions: suggestions.suggestions, requests: requests.requests, tally: votes.tally, voteLabels });
+  const [seenCount, setSeenCount] = useState(0);
+  const unseen = Math.max(0, feed.events.length - seenCount);
+  useEffect(() => { if (tab === "customers") setSeenCount(feed.events.length); }, [tab, feed.events.length]);
 
   useEffect(() => {
     const nav = navigator as Navigator & { wakeLock?: { request: (t: "screen") => Promise<unknown> } };
@@ -70,6 +78,8 @@ function Screen() {
           </p>
         </header>
 
+        <LiveBanner events={feed.events} />
+
         <nav style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           {TABS.map(([id, text]) => {
             const on = tab === id;
@@ -78,6 +88,9 @@ function Screen() {
                 style={{ minHeight: 56, padding: "0 26px", borderRadius: 28, font: "inherit", fontSize: 18, fontWeight: 600, cursor: "pointer",
                   ...(on ? { background: C.maroon, color: C.white, border: 0 } : { background: C.white, color: C.muted, border: BORDER }) }}>
                 {text}
+                {id === "customers" && unseen > 0 && (
+                  <span aria-label={`${unseen} new`} style={{ marginLeft: 10, display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 30, height: 30, padding: "0 8px", borderRadius: 15, background: on ? C.white : C.maroon, color: on ? C.maroon : C.white, fontSize: 16, fontWeight: 700 }}>{unseen}</span>
+                )}
               </button>
             );
           })}
@@ -88,7 +101,7 @@ function Screen() {
         {tab === "customers" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <SummaryCard summary={brain.summary} onRefresh={() => brain.refreshSummary().catch(() => {})} loading={brain.loading} />
-            <FeedbackFeed options={votes.options} tally={votes.tally} suggestions={suggestions.suggestions} requests={requests.requests} stats={stats} />
+            <FeedbackFeed options={votes.options} tally={votes.tally} suggestions={suggestions.suggestions} requests={requests.requests} stats={stats} events={feed.events} />
           </div>
         )}
         {tab === "helper" && (
