@@ -13,6 +13,7 @@ import { useRequests, useSuggestions } from "@/hooks/useFeedback";
 import { useGrandmaVoice, type ClientTools } from "@/hooks/useGrandmaVoice";
 import { api } from "@/hooks/api";
 import { BakeriaGrandma } from "@/components/BakeriaGrandma";
+import { SafeImg } from "@/components/SafeImg";
 import { LANGS, type BLang, type Topic } from "@/lib/i18n/bakeria";
 import { CONFIG } from "@/lib/config";
 import type { Lang } from "@/lib/db/schema";
@@ -32,9 +33,10 @@ const CHIPS: { topic: Topic; icon: string; size: number; emoji: string }[] = [
 
 /** An asset if the artist shipped it, otherwise the emoji stand-in. */
 function Icon({ name, size, emoji, className }: { name: string; size: number; emoji: string; className?: string }) {
-  const [missing, setMissing] = useState(false);
-  if (missing) return <span className={className} style={{ fontSize: size + 2, lineHeight: 1, flexShrink: 0 }}>{emoji}</span>;
-  return <img className={className} src={`/grandma/${name}.svg`} alt="" style={{ display: "block", width: size, height: size, flexShrink: 0 }} onError={() => setMissing(true)} />;
+  return (
+    <SafeImg src={`/grandma/${name}.svg`} className={className} style={{ display: "block", width: size, height: size, flexShrink: 0 }}
+      fallback={<span className={className} style={{ fontSize: size + 3, lineHeight: 1, flexShrink: 0 }}>{emoji}</span>} />
+  );
 }
 
 export default function Page() {
@@ -243,33 +245,34 @@ function Bakeria() {
 /* ---- Asset wrappers: real art when present, a drawn stand-in otherwise ---- */
 
 function Shelves() {
-  const [missing, setMissing] = useState(false);
-  if (missing) return (
-    <div aria-hidden style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, pointerEvents: "none", opacity: 0.5 }}>
-      {[0, 1, 2].map((i) => (
-        <div key={i} style={{ position: "absolute", left: 0, right: 0, top: 40 + i * 92, height: 8, background: "#e4d7c6", boxShadow: "0 3px 6px rgba(43,34,34,.08)" }} />
-      ))}
-    </div>
+  return (
+    <SafeImg src="/grandma/shelves.png" style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, objectFit: "cover", pointerEvents: "none" }}
+      fallback={
+        <div aria-hidden style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, pointerEvents: "none" }}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{ position: "absolute", left: 0, right: 0, top: 70 + i * 104, height: 10, background: "#e4d7c6", boxShadow: "0 4px 8px rgba(43,34,34,.10)" }} />
+          ))}
+        </div>
+      } />
   );
-  return <img src="/grandma/shelves.png" alt="" style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, objectFit: "cover", pointerEvents: "none" }} onError={() => setMissing(true)} />;
 }
 
 function Awning() {
-  const [missing, setMissing] = useState(false);
-  if (missing) return (
-    <div aria-hidden style={{ position: "absolute", left: 0, top: 0, width: 402, height: 92, pointerEvents: "none", background: "repeating-linear-gradient(90deg, #a3243b 0 28px, #f6f1eb 28px 56px)", borderBottomLeftRadius: "50% 28px", borderBottomRightRadius: "50% 28px", boxShadow: "0 6px 14px rgba(43,34,34,.12)" }} />
+  return (
+    <SafeImg src="/grandma/awning.svg" width={489} height={251} style={{ position: "absolute", left: -85, top: -90, display: "block", pointerEvents: "none" }}
+      fallback={
+        <div aria-hidden style={{ position: "absolute", left: 0, top: 0, width: 402, height: 86, pointerEvents: "none", background: "repeating-linear-gradient(90deg, #a3243b 0 30px, #f6f1eb 30px 60px)", borderBottomLeftRadius: "50% 26px", borderBottomRightRadius: "50% 26px", boxShadow: "0 6px 14px rgba(43,34,34,.12)" }} />
+      } />
   );
-  return <img src="/grandma/awning.svg" alt="" width={489} height={251} style={{ position: "absolute", left: -85, top: -90, display: "block", pointerEvents: "none" }} onError={() => setMissing(true)} />;
 }
 
 function Logo() {
-  const [missing, setMissing] = useState(false);
-  if (missing) return <span style={{ fontSize: 17, fontWeight: 700, color: MAROON, letterSpacing: "-0.2px" }}>Grandma&apos;s Bakeria</span>;
-  return <img src="/grandma/logo.png" alt="Grandma's Bakeria" style={{ display: "block", width: 107, height: 31.4, objectFit: "cover" }} onError={() => setMissing(true)} />;
+  return (
+    <SafeImg src="/grandma/logo.png" alt="Grandma's Bakeria" style={{ display: "block", width: 107, height: 31.4, objectFit: "cover" }}
+      fallback={<span style={{ fontSize: 16, fontWeight: 700, color: MAROON, letterSpacing: "-0.2px", whiteSpace: "nowrap" }}>Grandma&apos;s Bakeria</span>} />
+  );
 }
 
 function Globe({ name }: { name: string }) {
-  const [missing, setMissing] = useState(false);
-  if (missing) return <span style={{ fontSize: 22, lineHeight: 1 }}>🌐</span>;
-  return <img src={`/grandma/${name}.svg`} alt="" width={24} height={24} style={{ display: "block" }} onError={() => setMissing(true)} />;
+  return <SafeImg src={`/grandma/${name}.svg`} width={24} height={24} style={{ display: "block" }} fallback={<span style={{ fontSize: 21, lineHeight: 1 }}>&#127760;</span>} />;
 }
