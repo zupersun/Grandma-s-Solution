@@ -23,7 +23,7 @@ const SIGNAL_CAP = 0.2;
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export async function computePlan(input: { periodDays?: number; lang?: string } = {}) {
-  const periodDays = input.periodDays ?? 30;
+  const periodDays = input.periodDays ?? 14;
   const lang = input.lang ?? "en";
   const menu = await db.select().from(menuItems).where(eq(menuItems.active, true));
   const sups = await db.select().from(suppliers);
@@ -140,7 +140,7 @@ RULES, follow every one:
   }
   for (const l of lines) l.reason = reasons[l.ingredient] ?? `Needed for ${[...(usedBy[l.ingredient] ?? [])].slice(0, 3).join(", ")}.`;
 
-  const [plan] = await db.insert(plans).values({ period: periodDays >= 28 ? "for the next month" : `for the next ${periodDays} days`, lines, summary, flags, totalCost, status: "draft" }).returning();
+  const [plan] = await db.insert(plans).values({ period: periodDays >= 28 ? "for the next month" : periodDays === 14 ? "for the next two weeks" : `for the next ${periodDays} days`, lines, summary, flags, totalCost, status: "draft" }).returning();
   return plan;
 }
 
