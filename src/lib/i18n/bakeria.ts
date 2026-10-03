@@ -1,5 +1,5 @@
 /* Copy for the Bakeria prototype, from PROMPT.md §8 (verbatim LANGS). */
-export type BLang = "en" | "es" | "vi" | "zh";
+export type BLang = "en" | "ko" | "vi" | "zh";
 export type Topic = "order" | "recipe" | "allergens" | "compliment" | "ask";
 
 export const LANGS: Record<BLang, {
@@ -25,19 +25,19 @@ export const LANGS: Record<BLang, {
       ask: "Ask me anything, sweetheart: what’s fresh today, what’s in it, anything at all.",
     },
   },
-  es: {
-    name: "Español", code: "es-ES",
-    order: "Pedir con antelación", recipe: "Sugerir una receta", compliment: "Hacer un cumplido a la Abuela", ask: "¡Pregunta lo que sea!", allergens: "Preguntar por ingredientes/alérgenos", welcome: "¡Pasa, cariño! ¿Qué te horneo hoy?",
-    speaking: "La Abuela está hablando…", listening: "Te escucho, cariño…", idle: "Toca el micrófono para hablar con la Abuela", connecting: "La Abuela se está poniendo los lentes…",
-    typeInstead: "O escríbele a la Abuela…", send: "Enviar", back: "Volver al inicio", language: "Idioma",
-    micOn: "Hablar con la Abuela", micStop: "Dejar de escuchar",
-    micOff: "El micrófono no está disponible aquí; escribe tu mensaje.",
+  ko: {
+    name: "한국어", code: "ko-KR",
+    order: "미리 주문하기", recipe: "레시피 추천하기", compliment: "할머니께 칭찬 한마디", ask: "뭐든지 물어보세요!", allergens: "재료와 알레르기 묻기", welcome: "어서 오렴! 오늘은 뭘 구워 줄까?",
+    speaking: "할머니가 말하고 있어요…", listening: "듣고 있단다, 말해 보렴…", idle: "마이크를 눌러 할머니와 이야기하세요", connecting: "할머니가 안경을 쓰고 계세요…",
+    typeInstead: "할머니께 글로 남기기…", send: "보내기", back: "처음으로", language: "언어",
+    micOn: "할머니와 이야기하기", micStop: "그만 듣기",
+    micOff: "여기서는 마이크를 쓸 수 없어요. 글로 적어 주세요.",
     open: {
-      order: "¡Hola, cariño! ¿Qué quieres que te guarde y cuándo pasas a recogerlo?",
-      recipe: "¡Una idea de receta! Cuéntame qué te gustaría que horneara.",
-      compliment: "Ay, vas a hacer que me sonroje. ¡Cuéntame!",
-      allergens: "Claro, cariño. ¿De qué dulce quieres saber? Te digo exactamente qué lleva.",
-      ask: "Pregúntame lo que quieras, cariño: qué hay hoy, qué lleva, lo que sea.",
+      order: "안녕, 우리 아가! 무엇을 따로 담아 둘까? 언제 가지러 올 거니?",
+      recipe: "오, 레시피 아이디어구나! 무엇을 구워 주면 좋을지 말해 보렴.",
+      compliment: "아이고, 할머니 부끄럽구나. 어서 말해 보렴!",
+      allergens: "그럼, 물론이지. 어떤 걸 알고 싶니? 무엇이 들었는지 정확히 알려 줄게.",
+      ask: "뭐든지 물어보렴. 오늘 갓 나온 것, 재료, 무엇이든 괜찮단다.",
     },
   },
   vi: {
