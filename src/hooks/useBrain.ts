@@ -37,7 +37,15 @@ export function useBrain(lang = "en") {
     const d = await api<{ plan: Plan; supplierOrders: SupplierOrder[] }>("/api/brain/plan/approve", { method: "POST", json: { planId: plan.id } });
     applyPlan(d); return d;
   }), [run, plan]);
+  /** One door for everything Grandma types: answers her, and updates the plan when she changed it. */
+  const ask = useCallback((text: string) => run(async () => {
+    const d = await api<{ kind: "change" | "question"; reply: string; plan: Plan | null; supplierOrders: SupplierOrder[] }>(
+      "/api/brain/ask", { method: "POST", json: { text, lang } });
+    if (d.plan) applyPlan(d);
+    return d;
+  }), [run, lang]);
+
   const refreshSummary = useCallback(() => run(async () => { const d = await api<{ summary: Summary }>("/api/brain/summary", { method: "POST", json: { lang } }); setSummary(d.summary); return d.summary; }), [run, lang]);
 
-  return { plan, supplierOrders, summary, loading, error, note, makePlan, sendDirective, approvePlan, refreshSummary };
+  return { plan, supplierOrders, summary, loading, error, note, ask, makePlan, sendDirective, approvePlan, refreshSummary };
 }

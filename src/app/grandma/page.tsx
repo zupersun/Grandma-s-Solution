@@ -106,9 +106,9 @@ function Screen() {
         )}
         {tab === "helper" && (
           <div style={{ display: "grid", gap: 20, gridTemplateColumns: "minmax(300px, 0.8fr) minmax(0, 1.6fr)", alignItems: "start" }}>
-            <HelperPanel clientTools={helperTools} />
+            <HelperPanel clientTools={helperTools} onAsk={brain.ask} />
             <PlanCard plan={brain.plan} supplierOrders={brain.supplierOrders} loading={brain.loading} error={brain.error} note={brain.note}
-              onMake={() => brain.makePlan().catch(() => {})} onApprove={() => brain.approvePlan().catch(() => {})} onDirective={(t) => brain.sendDirective(t).catch(() => {})} />
+              onMake={() => brain.makePlan().catch(() => {})} onApprove={() => brain.approvePlan().catch(() => {})} />
           </div>
         )}
       </div>

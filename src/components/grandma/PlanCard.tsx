@@ -52,12 +52,11 @@ function Group({ title, note, lines, done, onToggle }: { title: string; note: st
   );
 }
 
-export function PlanCard({ plan, supplierOrders, loading, error, note, onMake, onApprove, onDirective }: {
+export function PlanCard({ plan, supplierOrders, loading, error, note, onMake, onApprove }: {
   plan: Plan | null; supplierOrders: SupplierOrder[]; loading: boolean; error: string | null; note: string | null;
-  onMake: () => void; onApprove: () => void; onDirective: (text: string) => void;
+  onMake: () => void; onApprove: () => void;
 }) {
   const [why, setWhy] = useState(false);
-  const [text, setText] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [done, setDone] = useState<Record<string, boolean>>({});
 
@@ -124,14 +123,6 @@ export function PlanCard({ plan, supplierOrders, loading, error, note, onMake, o
           </div>
         )}
       </div>
-
-      {/* Tell the helper something */}
-      <form style={{ ...sheet, padding: 20, display: "flex", gap: 12, flexWrap: "wrap" }} onSubmit={(e) => { e.preventDefault(); if (text.trim()) { onDirective(text); setText(""); } }}>
-        <label htmlFor="gm-directive" style={{ ...eyebrow, flexBasis: "100%" }}>Want something different?</label>
-        <input id="gm-directive" value={text} onChange={(e) => setText(e.target.value)} placeholder="Such as: I want to bake more puddings"
-          style={{ flex: 1, minWidth: 240, height: 64, boxSizing: "border-box", padding: "0 22px", border: BORDER, borderRadius: 32, font: "inherit", fontSize: 20, background: C.white, color: C.text }} />
-        <button className="gm-press" type="submit" style={bigBtn(true)} disabled={loading}>Tell me</button>
-      </form>
 
       {/* I order these */}
       <div style={sheet}>
