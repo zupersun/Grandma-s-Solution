@@ -1,62 +1,481 @@
 [
-  { "slug": "mango-pie", "category": "pie", "emoji": "🥭", "price": 6.5, "allergens": ["gluten", "dairy", "eggs"],
-    "names": {"en": "Mango Pie", "zh": "芒果派", "ko": "망고 파이", "vi": "Bánh xoài nướng"},
-    "descriptions": {"en": "Grandma's signature. Ripe mango in a buttery lattice crust.", "zh": "外婆的招牌。熟芒果配黄油格子酥皮。", "ko": "할머니의 대표 메뉴. 잘 익은 망고를 버터 격자 크러스트에 담아 구웠어요.", "vi": "Món đặc trưng của Bà. Xoài chín trong lớp vỏ bơ đan lưới."},
-    "recipe": {"flour":  0.12,  "butter":  0.06,  "sugar":  0.04,  "eggs":  0.08,  "mango":  0.15} },
-  { "slug": "apple-pie", "category": "pie", "emoji": "🍎", "price": 6.0, "allergens": ["gluten", "dairy"],
-    "names": {"en": "Apple Pie", "zh": "苹果派", "ko": "애플 파이", "vi": "Bánh táo nướng"},
-    "descriptions": {"en": "Three generations of the same recipe. Cinnamon, apples, patience.", "zh": "三代人的同一个配方。肉桂、苹果和耐心。", "ko": "삼대째 같은 조리법. 계피, 사과, 그리고 기다림.", "vi": "Ba đời cùng một công thức. Quế, táo và sự kiên nhẫn."},
-    "recipe": {"flour":  0.12,  "butter":  0.06,  "sugar":  0.04,  "apple":  0.18,  "cinnamon":  0.002} },
-  { "slug": "ube-cake", "category": "cake", "emoji": "💜", "price": 5.5, "allergens": ["gluten", "dairy", "eggs"],
-    "names": {"en": "Ube Cake Slice", "zh": "紫薯蛋糕", "ko": "우베 케이크 한 조각", "vi": "Bánh khoai mỡ tím"},
-    "descriptions": {"en": "Purple yam sponge with coconut cream. The regulars' favourite.", "zh": "紫山药海绵蛋糕配椰奶奶油。常客的最爱。", "ko": "자색고구마 스펀지에 코코넛 크림. 단골손님들이 제일 좋아해요.", "vi": "Bánh bông lan khoai mỡ tím với kem dừa. Khách quen thích nhất."},
-    "recipe": {"flour":  0.06,  "butter":  0.04,  "sugar":  0.05,  "eggs":  0.1,  "ube":  0.08,  "milk":  0.05,  "coconut_cream":  0.03} },
-  { "slug": "vanilla-pudding", "category": "pudding", "emoji": "🍮", "price": 4.5, "allergens": ["dairy", "eggs"],
-    "names": {"en": "Vanilla Pudding", "zh": "香草布丁", "ko": "바닐라 푸딩", "vi": "Bánh pudding vani"},
-    "descriptions": {"en": "Slow-set custard with real vanilla bean. Grandma eats one every afternoon.", "zh": "慢火凝固的真香草荚布丁。外婆每天下午都吃一个。", "ko": "진짜 바닐라빈으로 천천히 굳힌 커스터드. 할머니가 매일 오후에 하나 드세요.", "vi": "Kem trứng đông chậm với vani thật. Bà ăn một hũ mỗi chiều."},
-    "recipe": {"milk":  0.25,  "cream":  0.05,  "sugar":  0.03,  "eggs":  0.17,  "vanilla":  0.005} },
-  { "slug": "chocolate-pudding", "category": "pudding", "emoji": "🍫", "price": 4.75, "allergens": ["dairy", "eggs", "soy"],
-    "names": {"en": "Chocolate Pudding", "zh": "巧克力布丁", "ko": "초콜릿 푸딩", "vi": "Bánh pudding sô cô la"},
-    "descriptions": {"en": "Dark chocolate, barely sweet, the spoon stands up in it.", "zh": "黑巧克力，微甜，勺子能立住。", "ko": "다크 초콜릿, 덜 달게, 숟가락이 꽂힐 만큼 진하게.", "vi": "Sô cô la đen, ít ngọt, thìa cắm vào đứng được."},
-    "recipe": {"milk":  0.25,  "sugar":  0.03,  "eggs":  0.17,  "chocolate":  0.04} },
-  { "slug": "butter-croissant", "category": "pastry", "emoji": "🥐", "price": 3.75, "allergens": ["gluten", "dairy", "eggs"],
-    "names": {"en": "Butter Croissant", "zh": "黄油牛角包", "ko": "버터 크루아상", "vi": "Bánh sừng bò bơ"},
-    "descriptions": {"en": "Folded 27 times. Not 26. Grandma counts.", "zh": "折叠27次，不是26次。外婆会数。", "ko": "스물일곱 번 접어요. 스물여섯 번이 아니라. 할머니가 세세요.", "vi": "Gấp 27 lần. Không phải 26. Bà đếm đấy."},
-    "recipe": {"flour":  0.08,  "butter":  0.05,  "milk":  0.02,  "eggs":  0.02,  "yeast":  0.002,  "sugar":  0.01} },
-  { "slug": "pistachio-croissant", "category": "pastry", "emoji": "🥐", "price": 5.25, "allergens": ["gluten", "dairy", "eggs", "nuts"],
-    "names": {"en": "Pistachio Croissant", "zh": "开心果牛角包", "ko": "피스타치오 크루아상", "vi": "Bánh sừng bò hạt dẻ cười"},
-    "descriptions": {"en": "Filled with pistachio cream, dusted green.", "zh": "开心果奶油夹心，撒上绿色碎粒。", "ko": "피스타치오 크림을 넣고 초록 가루를 뿌렸어요.", "vi": "Nhân kem hạt dẻ cười, rắc bột xanh."},
-    "recipe": {"flour":  0.08,  "butter":  0.06,  "pistachio":  0.03,  "sugar":  0.02,  "eggs":  0.03,  "yeast":  0.002} },
-  { "slug": "sourdough-loaf", "category": "bread", "emoji": "🍞", "price": 8.0, "allergens": ["gluten"],
-    "names": {"en": "Sourdough Loaf", "zh": "酸面包", "ko": "사워도우 식빵", "vi": "Bánh mì men tự nhiên"},
-    "descriptions": {"en": "From a starter older than the bakery next door.", "zh": "酵母种比隔壁那家店的历史还久。", "ko": "옆집 빵집보다 오래된 발효종으로 구웠어요.", "vi": "Từ men cái còn lâu năm hơn cả tiệm bên cạnh."},
-    "recipe": {"flour":  0.5,  "yeast":  0.001} },
-  { "slug": "black-sesame-cookie", "category": "cookie", "emoji": "🍪", "price": 2.5, "allergens": ["gluten", "dairy", "eggs", "sesame"],
-    "names": {"en": "Black Sesame Cookie", "zh": "黑芝麻饼干", "ko": "흑임자 쿠키", "vi": "Bánh quy mè đen"},
-    "descriptions": {"en": "Crisp edges, chewy middle, toasted sesame.", "zh": "边缘酥脆，中间软糯，烤香芝麻。", "ko": "가장자리는 바삭, 가운데는 촉촉, 고소한 볶은 참깨.", "vi": "Viền giòn, giữa dai, mè rang thơm."},
-    "recipe": {"flour":  0.03,  "butter":  0.02,  "sugar":  0.02,  "eggs":  0.02,  "black_sesame":  0.01} },
-  { "slug": "egg-tart", "category": "pastry", "emoji": "🥧", "price": 3.25, "allergens": ["gluten", "dairy", "eggs"],
-    "names": {"en": "Egg Tart", "zh": "蛋挞", "ko": "에그타르트", "vi": "Bánh tart trứng"},
-    "descriptions": {"en": "Flaky shell, wobbly custard, best warm.", "zh": "酥皮蛋挞，蛋液嫩滑，趁热吃最好。", "ko": "바삭한 껍질에 흔들리는 커스터드. 따뜻할 때가 제일 맛있어요.", "vi": "Vỏ giòn xốp, nhân trứng rung rinh, ngon nhất khi còn ấm."},
-    "recipe": {"flour":  0.04,  "butter":  0.03,  "sugar":  0.02,  "eggs":  0.12,  "milk":  0.06} },
-  { "slug": "cinnamon-bun", "category": "pastry", "emoji": "🌀", "price": 4.25, "allergens": ["gluten", "dairy", "eggs"],
-    "names": {"en": "Cinnamon Bun", "zh": "肉桂卷", "ko": "시나몬 롤", "vi": "Bánh cuộn quế"},
-    "descriptions": {"en": "Sticky, soft, and bigger than your hand.", "zh": "黏软香甜，比你的手还大。", "ko": "끈적하고 부드럽고 손보다 커요.", "vi": "Dẻo, mềm và to hơn bàn tay con."},
-    "recipe": {"flour":  0.1,  "butter":  0.04,  "sugar":  0.05,  "eggs":  0.03,  "milk":  0.04,  "cinnamon":  0.003,  "yeast":  0.002} },
-  { "slug": "drip-coffee", "category": "drink", "emoji": "☕", "price": 2.75, "allergens": [],
-    "names": {"en": "Drip Coffee", "zh": "手冲咖啡", "ko": "드립 커피", "vi": "Cà phê phin"},
-    "descriptions": {"en": "Bottomless if you sit and talk to Grandma.", "zh": "坐下来陪外婆聊天就免费续杯。", "ko": "앉아서 할머니와 이야기하면 계속 채워 드려요.", "vi": "Rót thêm không giới hạn nếu con ngồi nói chuyện với Bà."},
-    "recipe": {"coffee":  0.018,  "milk":  0.03} },
-  { "slug": "berry-parfait", "category": "parfait", "emoji": "🍓", "price": 5.75, "allergens": ["dairy", "gluten", "nuts"],
-    "names": {"en": "Berry Yogurt Parfait", "zh": "莓果酸奶杯", "ko": "베리 요거트 파르페", "vi": "Parfait sữa chua berry"},
-    "descriptions": {"en": "Thick yogurt, layered berries, and Grandma's oat-almond granola. Built in the jar, eaten with the long spoon.", "zh": "浓稠酸奶、层层莓果，配外婆的燕麦杏仁格兰诺拉。", "ko": "진한 요거트에 베리를 층층이, 할머니의 오트 아몬드 그라놀라와 함께.", "vi": "Sữa chua đặc, berry xếp lớp, cùng granola yến mạch hạnh nhân của Bà."},
-    "recipe": {"milk":  0.15,  "cream":  0.03,  "sugar":  0.02,  "flour":  0.02,  "butter":  0.01,  "pistachio":  0.01} },
-  { "slug": "mango-parfait", "category": "parfait", "emoji": "🥭", "price": 6.25, "allergens": ["dairy", "gluten"],
-    "names": {"en": "Mango Coconut Parfait", "zh": "芒果椰子杯", "ko": "망고 코코넛 파르페", "vi": "Parfait xoài dừa"},
-    "descriptions": {"en": "Coconut cream, ripe mango, and crumbled butter shortbread. The pie's little cousin.", "zh": "椰奶奶油、熟芒果和黄油酥饼碎。芒果派的小表妹。", "ko": "코코넛 크림, 잘 익은 망고, 부순 버터 쇼트브레드. 파이의 사촌 동생이에요.", "vi": "Kem dừa, xoài chín và bánh quy bơ vụn. Em họ của bánh xoài."},
-    "recipe": {"coconut_cream":  0.08,  "cream":  0.05,  "mango":  0.1,  "sugar":  0.02,  "flour":  0.03,  "butter":  0.02} },
-  { "slug": "chocolate-parfait", "category": "parfait", "emoji": "🍫", "price": 6.0, "allergens": ["dairy", "eggs", "gluten", "soy"],
-    "names": {"en": "Chocolate Pudding Parfait", "zh": "巧克力布丁杯", "ko": "초콜릿 푸딩 파르페", "vi": "Parfait pudding sô cô la"},
-    "descriptions": {"en": "Her chocolate pudding layered with whipped cream and crushed sesame cookie. For the ones who can't choose.", "zh": "外婆的巧克力布丁，层层奶油和饼干碎。给选择困难的人。", "ko": "초콜릿 푸딩에 휘핑크림과 흑임자 쿠키를 층층이. 못 고르는 분들을 위해.", "vi": "Pudding sô cô la xếp lớp với kem tươi và bánh quy mè đen. Cho người khó chọn."},
-    "recipe": {"milk":  0.15,  "cream":  0.05,  "sugar":  0.03,  "eggs":  0.08,  "chocolate":  0.03,  "flour":  0.02,  "butter":  0.01,  "black_sesame":  0.005} }
+  {
+    "slug": "mango-pie",
+    "category": "pie",
+    "emoji": "🥭",
+    "price": 6.5,
+    "allergens": [
+      "gluten",
+      "dairy",
+      "eggs"
+    ],
+    "names": {
+      "en": "Mango Pie",
+      "zh": "芒果派",
+      "ko": "망고 파이",
+      "vi": "Bánh xoài nướng"
+    },
+    "descriptions": {
+      "en": "Grandma's signature. Ripe mango in a buttery lattice crust.",
+      "zh": "外婆的招牌。熟芒果配黄油格子酥皮。",
+      "ko": "할머니의 대표 메뉴. 잘 익은 망고를 버터 격자 크러스트에 담아 구웠어요.",
+      "vi": "Món đặc trưng của Bà. Xoài chín trong lớp vỏ bơ đan lưới."
+    },
+    "recipe": {
+      "flour": 0.12,
+      "butter": 0.06,
+      "sugar": 0.04,
+      "eggs": 0.08,
+      "mango": 0.15
+    }
+  },
+  {
+    "slug": "apple-pie",
+    "category": "pie",
+    "emoji": "🍎",
+    "price": 6.0,
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "names": {
+      "en": "Apple Pie",
+      "zh": "苹果派",
+      "ko": "애플 파이",
+      "vi": "Bánh táo nướng"
+    },
+    "descriptions": {
+      "en": "Three generations of the same recipe. Cinnamon, apples, patience.",
+      "zh": "三代人的同一个配方。肉桂、苹果和耐心。",
+      "ko": "삼대째 같은 조리법. 계피, 사과, 그리고 기다림.",
+      "vi": "Ba đời cùng một công thức. Quế, táo và sự kiên nhẫn."
+    },
+    "recipe": {
+      "flour": 0.12,
+      "butter": 0.06,
+      "sugar": 0.04,
+      "apple": 0.18,
+      "cinnamon": 0.002
+    }
+  },
+  {
+    "slug": "ube-cake",
+    "category": "cake",
+    "emoji": "💜",
+    "price": 5.5,
+    "allergens": [
+      "gluten",
+      "dairy",
+      "eggs"
+    ],
+    "names": {
+      "en": "Ube Cake Slice",
+      "zh": "紫薯蛋糕",
+      "ko": "우베 케이크 한 조각",
+      "vi": "Bánh khoai mỡ tím"
+    },
+    "descriptions": {
+      "en": "Purple yam sponge with coconut cream. The regulars' favourite.",
+      "zh": "紫山药海绵蛋糕配椰奶奶油。常客的最爱。",
+      "ko": "자색고구마 스펀지에 코코넛 크림. 단골손님들이 제일 좋아해요.",
+      "vi": "Bánh bông lan khoai mỡ tím với kem dừa. Khách quen thích nhất."
+    },
+    "recipe": {
+      "flour": 0.06,
+      "butter": 0.04,
+      "sugar": 0.05,
+      "eggs": 0.1,
+      "ube": 0.08,
+      "milk": 0.05,
+      "coconut_cream": 0.03
+    }
+  },
+  {
+    "slug": "mango-cake",
+    "category": "cake",
+    "emoji": "🥭",
+    "price": 5.75,
+    "allergens": [
+      "gluten",
+      "dairy",
+      "eggs"
+    ],
+    "names": {
+      "en": "Mango Cake Slice",
+      "zh": "芒果蛋糕",
+      "ko": "망고 케이크 한 조각",
+      "vi": "Bánh bông lan xoài"
+    },
+    "descriptions": {
+      "en": "Soft sponge layered with fresh mango and cream. Grandma's newest.",
+      "zh": "松软海绵蛋糕夹新鲜芒果与奶油。外婆的新作。",
+      "ko": "부드러운 스펀지에 생망고와 크림을 올렸어요. 할머니의 새 메뉴.",
+      "vi": "Bánh bông lan mềm với xoài tươi và kem. Món mới của Bà."
+    },
+    "recipe": {
+      "flour": 0.06,
+      "butter": 0.04,
+      "sugar": 0.05,
+      "eggs": 0.1,
+      "mango": 0.09,
+      "cream": 0.04
+    }
+  },
+  {
+    "slug": "vanilla-pudding",
+    "category": "pudding",
+    "emoji": "🍮",
+    "price": 4.5,
+    "allergens": [
+      "dairy",
+      "eggs"
+    ],
+    "names": {
+      "en": "Vanilla Pudding",
+      "zh": "香草布丁",
+      "ko": "바닐라 푸딩",
+      "vi": "Bánh pudding vani"
+    },
+    "descriptions": {
+      "en": "Slow-set custard with real vanilla bean. Grandma eats one every afternoon.",
+      "zh": "慢火凝固的真香草荚布丁。外婆每天下午都吃一个。",
+      "ko": "진짜 바닐라빈으로 천천히 굳힌 커스터드. 할머니가 매일 오후에 하나 드세요.",
+      "vi": "Kem trứng đông chậm với vani thật. Bà ăn một hũ mỗi chiều."
+    },
+    "recipe": {
+      "milk": 0.25,
+      "cream": 0.05,
+      "sugar": 0.03,
+      "eggs": 0.17,
+      "vanilla": 0.005
+    }
+  },
+  {
+    "slug": "chocolate-pudding",
+    "category": "pudding",
+    "emoji": "🍫",
+    "price": 4.75,
+    "allergens": [
+      "dairy",
+      "eggs",
+      "soy"
+    ],
+    "names": {
+      "en": "Chocolate Pudding",
+      "zh": "巧克力布丁",
+      "ko": "초콜릿 푸딩",
+      "vi": "Bánh pudding sô cô la"
+    },
+    "descriptions": {
+      "en": "Dark chocolate, barely sweet, the spoon stands up in it.",
+      "zh": "黑巧克力，微甜，勺子能立住。",
+      "ko": "다크 초콜릿, 덜 달게, 숟가락이 꽂힐 만큼 진하게.",
+      "vi": "Sô cô la đen, ít ngọt, thìa cắm vào đứng được."
+    },
+    "recipe": {
+      "milk": 0.25,
+      "sugar": 0.03,
+      "eggs": 0.17,
+      "chocolate": 0.04
+    }
+  },
+  {
+    "slug": "butter-croissant",
+    "category": "pastry",
+    "emoji": "🥐",
+    "price": 3.75,
+    "allergens": [
+      "gluten",
+      "dairy",
+      "eggs"
+    ],
+    "names": {
+      "en": "Butter Croissant",
+      "zh": "黄油牛角包",
+      "ko": "버터 크루아상",
+      "vi": "Bánh sừng bò bơ"
+    },
+    "descriptions": {
+      "en": "Folded 27 times. Not 26. Grandma counts.",
+      "zh": "折叠27次，不是26次。外婆会数。",
+      "ko": "스물일곱 번 접어요. 스물여섯 번이 아니라. 할머니가 세세요.",
+      "vi": "Gấp 27 lần. Không phải 26. Bà đếm đấy."
+    },
+    "recipe": {
+      "flour": 0.08,
+      "butter": 0.05,
+      "milk": 0.02,
+      "eggs": 0.02,
+      "yeast": 0.002,
+      "sugar": 0.01
+    }
+  },
+  {
+    "slug": "pistachio-croissant",
+    "category": "pastry",
+    "emoji": "🥐",
+    "price": 5.25,
+    "allergens": [
+      "gluten",
+      "dairy",
+      "eggs",
+      "nuts"
+    ],
+    "names": {
+      "en": "Pistachio Croissant",
+      "zh": "开心果牛角包",
+      "ko": "피스타치오 크루아상",
+      "vi": "Bánh sừng bò hạt dẻ cười"
+    },
+    "descriptions": {
+      "en": "Filled with pistachio cream, dusted green.",
+      "zh": "开心果奶油夹心，撒上绿色碎粒。",
+      "ko": "피스타치오 크림을 넣고 초록 가루를 뿌렸어요.",
+      "vi": "Nhân kem hạt dẻ cười, rắc bột xanh."
+    },
+    "recipe": {
+      "flour": 0.08,
+      "butter": 0.06,
+      "pistachio": 0.03,
+      "sugar": 0.02,
+      "eggs": 0.03,
+      "yeast": 0.002
+    }
+  },
+  {
+    "slug": "sourdough-loaf",
+    "category": "bread",
+    "emoji": "🍞",
+    "price": 8.0,
+    "allergens": [
+      "gluten"
+    ],
+    "names": {
+      "en": "Sourdough Loaf",
+      "zh": "酸面包",
+      "ko": "사워도우 식빵",
+      "vi": "Bánh mì men tự nhiên"
+    },
+    "descriptions": {
+      "en": "From a starter older than the bakery next door.",
+      "zh": "酵母种比隔壁那家店的历史还久。",
+      "ko": "옆집 빵집보다 오래된 발효종으로 구웠어요.",
+      "vi": "Từ men cái còn lâu năm hơn cả tiệm bên cạnh."
+    },
+    "recipe": {
+      "flour": 0.5,
+      "yeast": 0.001
+    }
+  },
+  {
+    "slug": "black-sesame-cookie",
+    "category": "cookie",
+    "emoji": "🍪",
+    "price": 2.5,
+    "allergens": [
+      "gluten",
+      "dairy",
+      "eggs",
+      "sesame"
+    ],
+    "names": {
+      "en": "Black Sesame Cookie",
+      "zh": "黑芝麻饼干",
+      "ko": "흑임자 쿠키",
+      "vi": "Bánh quy mè đen"
+    },
+    "descriptions": {
+      "en": "Crisp edges, chewy middle, toasted sesame.",
+      "zh": "边缘酥脆，中间软糯，烤香芝麻。",
+      "ko": "가장자리는 바삭, 가운데는 촉촉, 고소한 볶은 참깨.",
+      "vi": "Viền giòn, giữa dai, mè rang thơm."
+    },
+    "recipe": {
+      "flour": 0.03,
+      "butter": 0.02,
+      "sugar": 0.02,
+      "eggs": 0.02,
+      "black_sesame": 0.01
+    }
+  },
+  {
+    "slug": "egg-tart",
+    "category": "pastry",
+    "emoji": "🥧",
+    "price": 3.25,
+    "allergens": [
+      "gluten",
+      "dairy",
+      "eggs"
+    ],
+    "names": {
+      "en": "Egg Tart",
+      "zh": "蛋挞",
+      "ko": "에그타르트",
+      "vi": "Bánh tart trứng"
+    },
+    "descriptions": {
+      "en": "Flaky shell, wobbly custard, best warm.",
+      "zh": "酥皮蛋挞，蛋液嫩滑，趁热吃最好。",
+      "ko": "바삭한 껍질에 흔들리는 커스터드. 따뜻할 때가 제일 맛있어요.",
+      "vi": "Vỏ giòn xốp, nhân trứng rung rinh, ngon nhất khi còn ấm."
+    },
+    "recipe": {
+      "flour": 0.04,
+      "butter": 0.03,
+      "sugar": 0.02,
+      "eggs": 0.12,
+      "milk": 0.06
+    }
+  },
+  {
+    "slug": "cinnamon-bun",
+    "category": "pastry",
+    "emoji": "🌀",
+    "price": 4.25,
+    "allergens": [
+      "gluten",
+      "dairy",
+      "eggs"
+    ],
+    "names": {
+      "en": "Cinnamon Bun",
+      "zh": "肉桂卷",
+      "ko": "시나몬 롤",
+      "vi": "Bánh cuộn quế"
+    },
+    "descriptions": {
+      "en": "Sticky, soft, and bigger than your hand.",
+      "zh": "黏软香甜，比你的手还大。",
+      "ko": "끈적하고 부드럽고 손보다 커요.",
+      "vi": "Dẻo, mềm và to hơn bàn tay con."
+    },
+    "recipe": {
+      "flour": 0.1,
+      "butter": 0.04,
+      "sugar": 0.05,
+      "eggs": 0.03,
+      "milk": 0.04,
+      "cinnamon": 0.003,
+      "yeast": 0.002
+    }
+  },
+  {
+    "slug": "drip-coffee",
+    "category": "drink",
+    "emoji": "☕",
+    "price": 2.75,
+    "allergens": [],
+    "names": {
+      "en": "Drip Coffee",
+      "zh": "手冲咖啡",
+      "ko": "드립 커피",
+      "vi": "Cà phê phin"
+    },
+    "descriptions": {
+      "en": "Bottomless if you sit and talk to Grandma.",
+      "zh": "坐下来陪外婆聊天就免费续杯。",
+      "ko": "앉아서 할머니와 이야기하면 계속 채워 드려요.",
+      "vi": "Rót thêm không giới hạn nếu con ngồi nói chuyện với Bà."
+    },
+    "recipe": {
+      "coffee": 0.018,
+      "milk": 0.03
+    }
+  },
+  {
+    "slug": "berry-parfait",
+    "category": "parfait",
+    "emoji": "🍓",
+    "price": 5.75,
+    "allergens": [
+      "dairy",
+      "gluten",
+      "nuts"
+    ],
+    "names": {
+      "en": "Berry Yogurt Parfait",
+      "zh": "莓果酸奶杯",
+      "ko": "베리 요거트 파르페",
+      "vi": "Parfait sữa chua berry"
+    },
+    "descriptions": {
+      "en": "Thick yogurt, layered berries, and Grandma's oat-almond granola. Built in the jar, eaten with the long spoon.",
+      "zh": "浓稠酸奶、层层莓果，配外婆的燕麦杏仁格兰诺拉。",
+      "ko": "진한 요거트에 베리를 층층이, 할머니의 오트 아몬드 그라놀라와 함께.",
+      "vi": "Sữa chua đặc, berry xếp lớp, cùng granola yến mạch hạnh nhân của Bà."
+    },
+    "recipe": {
+      "milk": 0.15,
+      "cream": 0.03,
+      "sugar": 0.02,
+      "flour": 0.02,
+      "butter": 0.01,
+      "pistachio": 0.01
+    }
+  },
+  {
+    "slug": "mango-parfait",
+    "category": "parfait",
+    "emoji": "🥭",
+    "price": 6.25,
+    "allergens": [
+      "dairy",
+      "gluten"
+    ],
+    "names": {
+      "en": "Mango Coconut Parfait",
+      "zh": "芒果椰子杯",
+      "ko": "망고 코코넛 파르페",
+      "vi": "Parfait xoài dừa"
+    },
+    "descriptions": {
+      "en": "Coconut cream, ripe mango, and crumbled butter shortbread. The pie's little cousin.",
+      "zh": "椰奶奶油、熟芒果和黄油酥饼碎。芒果派的小表妹。",
+      "ko": "코코넛 크림, 잘 익은 망고, 부순 버터 쇼트브레드. 파이의 사촌 동생이에요.",
+      "vi": "Kem dừa, xoài chín và bánh quy bơ vụn. Em họ của bánh xoài."
+    },
+    "recipe": {
+      "coconut_cream": 0.08,
+      "cream": 0.05,
+      "mango": 0.1,
+      "sugar": 0.02,
+      "flour": 0.03,
+      "butter": 0.02
+    }
+  },
+  {
+    "slug": "chocolate-parfait",
+    "category": "parfait",
+    "emoji": "🍫",
+    "price": 6.0,
+    "allergens": [
+      "dairy",
+      "eggs",
+      "gluten",
+      "soy"
+    ],
+    "names": {
+      "en": "Chocolate Pudding Parfait",
+      "zh": "巧克力布丁杯",
+      "ko": "초콜릿 푸딩 파르페",
+      "vi": "Parfait pudding sô cô la"
+    },
+    "descriptions": {
+      "en": "Her chocolate pudding layered with whipped cream and crushed sesame cookie. For the ones who can't choose.",
+      "zh": "外婆的巧克力布丁，层层奶油和饼干碎。给选择困难的人。",
+      "ko": "초콜릿 푸딩에 휘핑크림과 흑임자 쿠키를 층층이. 못 고르는 분들을 위해.",
+      "vi": "Pudding sô cô la xếp lớp với kem tươi và bánh quy mè đen. Cho người khó chọn."
+    },
+    "recipe": {
+      "milk": 0.15,
+      "cream": 0.05,
+      "sugar": 0.03,
+      "eggs": 0.08,
+      "chocolate": 0.03,
+      "flour": 0.02,
+      "butter": 0.01,
+      "black_sesame": 0.005
+    }
+  }
 ]
