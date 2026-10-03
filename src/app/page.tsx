@@ -97,9 +97,20 @@ function Bakeria() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tapped, voice]);
 
+  const live = voice.status === "connected";
+
+  const micPress = useCallback(() => {
+    if (!live) { voice.start("voice"); return; }
+    if (talking) { voice.interrupt(); return; }   // she is mid-sentence: stop and listen
+    voice.setMuted(!voice.isMuted);               // otherwise pause or resume listening
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live, talking, voice.isMuted]);
+
+  const micLabel = !live ? t.micOn : talking ? t.micStop : voice.isMuted ? t.micOn : t.micStop;
+
   const goHome = () => { voice.stop(); setScreen("home"); setShown({}); };
   const pickLang = (l: BLang) => { setLang(l); setSheet(false); customer.setLang(l as Lang); };
-  const status = voice.status === "connecting" ? t.connecting : talking ? t.speaking : listening ? t.listening : t.idle;
+  const status = voice.status === "connecting" ? t.connecting : talking ? t.speaking : live && voice.isMuted ? t.idle : listening ? t.listening : t.idle;
 
   return (
     <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#efedea", padding: 16 }}>
@@ -168,16 +179,18 @@ function Bakeria() {
               {(voice.fallback || voice.error) && <p style={{ margin: "0 0 8px", fontSize: 13, color: "#5a5959", textAlign: "center" }}>{t.micOff}</p>}
 
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-                <button className="gm-press gm-mic" onClick={() => (voice.status === "connected" && voice.mode === "voice" ? voice.stop() : voice.start("voice"))}
-                  aria-label={listening ? t.micStop : t.micOn} aria-pressed={listening}
-                  style={{ width: 76, height: 76, borderRadius: "50%", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 18px rgba(90,26,31,.28)", background: listening ? "#a3243b" : MAROON }}>
-                  {listening ? (
+                <button className="gm-press gm-mic" onClick={micPress}
+                  aria-label={micLabel} aria-pressed={live && !voice.isMuted}
+                  style={{ width: 76, height: 76, borderRadius: "50%", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 18px rgba(90,26,31,.28)", background: talking ? "#a3243b" : MAROON, transition: "background-color 150ms ease" }}>
+                  {talking ? (
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" aria-hidden><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
+                  ) : live && voice.isMuted ? (
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0" /><path d="M12 18v3" /><path d="M3 3l18 18" /></svg>
                   ) : (
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0" /><path d="M12 18v3" /></svg>
                   )}
                 </button>
-                <form onSubmit={(e) => { e.preventDefault(); const m = typed.trim(); if (!m) return; setTyped(""); voice.sendText(m); }} style={{ display: "flex", gap: 8, width: "100%" }}>
+                <form onSubmit={(e) => { e.preventDefault(); const m = typed.trim(); if (!m) return; setTyped(""); if (talking) voice.interrupt(); voice.sendText(m); }} style={{ display: "flex", gap: 8, width: "100%" }}>
                   <label htmlFor="gm-type" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>{t.typeInstead}</label>
                   <input id="gm-type" value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={t.typeInstead} autoComplete="off"
                     style={{ flex: 1, minWidth: 0, height: 44, boxSizing: "border-box", padding: "0 16px", border: BORDER, borderRadius: 22, font: "inherit", fontSize: 15, color: "#2b2222", background: "#fff" }} />

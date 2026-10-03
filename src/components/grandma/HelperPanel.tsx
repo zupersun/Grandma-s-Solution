@@ -38,16 +38,16 @@ export function HelperPanel({ clientTools }: { clientTools: ClientTools }) {
       {(voice.fallback || voice.error) && <p style={{ margin: 0, fontSize: 14, color: C.muted, textAlign: "center" }}>Her voice is resting. Type to her instead.</p>}
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-        <button className="gm-press gm-mic" onClick={() => (live && voice.mode === "voice" ? voice.stop() : voice.start("voice"))}
-          aria-label={listening ? "Stop listening" : "Talk to your helper"} aria-pressed={listening}
-          style={{ width: 76, height: 76, borderRadius: "50%", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 18px rgba(90,26,31,.28)", background: listening ? C.listening : C.maroon }}>
-          {listening ? (
+        <button className="gm-press gm-mic" onClick={() => { if (!live) { voice.start("voice"); return; } if (talking) { voice.interrupt(); return; } voice.setMuted(!voice.isMuted); }}
+          aria-label={talking ? "Stop and listen to me" : live && voice.isMuted ? "Start listening" : "Pause listening"} aria-pressed={live && !voice.isMuted}
+          style={{ width: 76, height: 76, borderRadius: "50%", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 18px rgba(90,26,31,.28)", background: talking ? C.listening : C.maroon }}>
+          {talking ? (
             <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" aria-hidden><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
           ) : (
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0" /><path d="M12 18v3" /></svg>
           )}
         </button>
-        <form onSubmit={(e) => { e.preventDefault(); const m = typed.trim(); if (!m) return; setTyped(""); voice.sendText(m); }} style={{ display: "flex", gap: 8, width: "100%" }}>
+        <form onSubmit={(e) => { e.preventDefault(); const m = typed.trim(); if (!m) return; setTyped(""); if (talking) voice.interrupt(); voice.sendText(m); }} style={{ display: "flex", gap: 8, width: "100%" }}>
           <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="Or type to your helper…" aria-label="Type to your helper"
             style={{ flex: 1, minWidth: 0, height: 52, boxSizing: "border-box", padding: "0 18px", border: BORDER, borderRadius: 26, font: "inherit", fontSize: 17, background: C.white, color: C.text }} />
           <button className="gm-press" type="submit" style={{ ...pill("solid"), minHeight: 52, padding: "0 20px" }}>Send</button>

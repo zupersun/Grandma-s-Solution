@@ -80,6 +80,20 @@ export function useGrandmaVoice(opts: { agent: "customer" | "helper"; lang: stri
     }
   }, [conversation, opts.agent, opts.lang, proxiedTools, fallbackGreeting]);
 
+  /** Cut her off: silence what is already playing and make sure the mic is open. */
+  const interrupt = useCallback(() => {
+    try { conversation.setMuted(false); } catch {}
+    try {
+      conversation.setVolume({ volume: 0 });
+      setTimeout(() => { try { conversation.setVolume({ volume: 1 }); } catch {} }, 450);
+    } catch {}
+    try { conversation.sendUserActivity(); } catch {}
+  }, [conversation]);
+
+  const setMuted = useCallback((m: boolean) => {
+    try { conversation.setMuted(m); } catch {}
+  }, [conversation]);
+
   const stop = useCallback(() => {
     setFallback(false); setStarting(false);
     try { conversation.endSession(); } catch {}
@@ -112,5 +126,5 @@ export function useGrandmaVoice(opts: { agent: "customer" | "helper"; lang: stri
 
   const avatarState: AvatarState = !connected ? "idle" : conversation.isSpeaking ? "speaking" : thinking ? "thinking" : mode === "voice" ? "listening" : "idle";
 
-  return { status, mode, fallback, seedGrandma, sendContext, isSpeaking: conversation.isSpeaking, volume, transcript, error, avatarState, start, stop, sendText };
+  return { status, mode, fallback, seedGrandma, sendContext, interrupt, setMuted, isMuted: conversation.isMuted, isSpeaking: conversation.isSpeaking, volume, transcript, error, avatarState, start, stop, sendText };
 }
