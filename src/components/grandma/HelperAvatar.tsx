@@ -17,9 +17,9 @@ export function HelperAvatar({ talking, listening }: { talking: boolean; listeni
             <img src="/grandma/grandma.png" alt="" style={img} />
             {talk === "ok" && <img src="/grandma/grandma-talking.png" alt="" style={{ ...img, opacity: talking ? 1 : 0, transition: "opacity 140ms ease-in-out" }} />}
           </>
-        ) : (
+        ) : still === "missing" ? (
           <div style={{ ...img, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 150 }}>{talking ? "\u{1F60A}" : "\u{1F475}"}</div>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -97,18 +97,18 @@ export async function computePlan(input: { periodDays?: number; lang?: string } 
   for (const m of menu) {
     const share = (unitsPerDay[m.slug] ?? 0) / totalUnits;
     if ((mentions[m.slug] ?? 0) >= 8 && share < 0.08) {
-      flags.push(`${m.names.en} is hyped in chat (${mentions[m.slug]} mentions) but only ${Math.round(share * 100)}% of sales. Try a small extra batch before buying big.`);
+      flags.push(`${mentions[m.slug]} people asked for ${m.names.en}, but few buy it. Bake a small batch first.`);
     }
   }
   if (lastPlan) for (const prev of lastPlan.lines) {
     const needed = need[prev.ingredient] ?? 0;
     const now = lines.find((l) => l.ingredient === prev.ingredient);
-    if (needed > 0 && prev.qty > needed * 1.4) flags.push(`Last month bought ${prev.qty} ${prev.unit} of ${label(prev.ingredient)} but about ${Math.round(needed)} ${prev.unit} were needed. Ordering less this time.`);
-    if (now && now.qty > prev.qty * 1.3) flags.push(`${label(prev.ingredient)} goes up from ${prev.qty} to ${now.qty} ${now.unit} this month.`);
+    if (needed > 0 && prev.qty > needed * 1.4) flags.push(`Last month you threw away ${label(prev.ingredient)}. I am buying less this time.`);
+    if (now && now.qty > prev.qty * 1.3) flags.push(`You need more ${label(prev.ingredient)} than last month.`);
   }
   for (const l of lines) {
     const sup = sups.find((s) => s.id === l.supplierId);
-    if (sup && sup.leadDays >= 4) flags.push(`${sup.name} needs ${sup.leadDays} days. Order ${label(l.ingredient)} early.`);
+    if (sup && sup.leadDays >= 4) flags.push(`${sup.name} is slow. I ordered the ${label(l.ingredient)} early.`);
   }
 
   // 6. words from the model, with a plain fallback so the plan always exists
@@ -116,7 +116,15 @@ export async function computePlan(input: { periodDays?: number; lang?: string } 
   let summary = "";
   try {
     const out = await generateJSON({
-      system: `You are the Helper of ${CONFIG.bakeryName}, explaining a buying plan to Grandma, who runs the bakery and is not technical. Write in language code "${lang}". Short plain sentences, rounded numbers, no jargon. Never change any number you are given.`,
+      system: `You write for Grandma, who has baked for fifty years and left school at fourteen. Write in language code "${lang}".
+RULES, follow every one:
+- Sentences under twelve words. One idea each.
+- Everyday words only. Say "throw away", not "waste". Say "sell more", not "push". Say "buy early", not "lead time".
+- Round money to the nearest ten dollars and write it like $3,500. Never write kilograms, units or codes.
+- Talk to her as "you". Warm, like her apprentice.
+- The summary is three sentences: what she spends, what changed and why that is good, and one thing to watch.
+- Each reason is one short sentence saying what the ingredient is for.
+- Never change a number you are given and never invent one.`,
       user: JSON.stringify({
         task: "Give one short reason per ingredient (key = ingredient id) and a 3-sentence summary. Mention waste avoided versus last month if the data supports it, and any flag that matters.",
         lines: lines.map((l) => ({ ingredient: l.ingredient, label: label(l.ingredient), qty: l.qty, unit: l.unit, cost: l.cost, supplier: l.supplierName, usedBy: [...(usedBy[l.ingredient] ?? [])].slice(0, 4) })),
@@ -128,12 +136,11 @@ export async function computePlan(input: { periodDays?: number; lang?: string } 
     reasons = out.reasons; summary = out.summary;
   } catch (e) {
     if (!(e instanceof BrainUnavailable)) console.warn("[brain] explain failed", e);
-    summary = `Here is the plan, Grandma: about $${Math.round(totalCost)} of ingredients for the next ${periodDays} days across ${new Set(lines.map((l) => l.supplierName)).size} suppliers.` +
-      (lastPlan ? ` Last month was about $${Math.round(lastPlan.totalCost)}.` : "") + (flags[0] ? ` ${flags[0]}` : "");
+    summary = `You will spend about $${Math.round(totalCost / 10) * 10} on ingredients.` + (lastPlan ? ` Last month it was about $${Math.round(lastPlan.totalCost / 10) * 10}.` : "") + " I have the list ready below.";
   }
   for (const l of lines) l.reason = reasons[l.ingredient] ?? `Needed for ${[...(usedBy[l.ingredient] ?? [])].slice(0, 3).join(", ")}.`;
 
-  const [plan] = await db.insert(plans).values({ period: `${month} (next ${periodDays} days)`, lines, summary, flags, totalCost, status: "draft" }).returning();
+  const [plan] = await db.insert(plans).values({ period: periodDays >= 28 ? "for the next month" : `for the next ${periodDays} days`, lines, summary, flags, totalCost, status: "draft" }).returning();
   return plan;
 }
 

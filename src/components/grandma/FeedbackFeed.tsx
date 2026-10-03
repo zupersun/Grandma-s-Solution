@@ -13,8 +13,8 @@ const eyebrow: React.CSSProperties = { margin: 0, fontSize: 14, fontWeight: 700,
 export function SummaryCard({ summary, onRefresh, loading }: { summary: Summary | null; onRefresh: () => void; loading: boolean }) {
   return (
     <div style={{ ...sheet, background: C.bubble, borderColor: C.tintLine }}>
-      <p style={eyebrow}>Your helper says</p>
-      <p style={{ margin: "10px 0 0", fontSize: 24, lineHeight: 1.5 }}>{summary?.text ?? "Tap the button and I’ll tell you how the day is going."}</p>
+      <p style={eyebrow}>How today went</p>
+      <p style={{ margin: "10px 0 0", fontSize: 24, lineHeight: 1.5 }}>{summary?.text ?? "Press the button and I will tell you how today went."}</p>
       <button className="gm-press" onClick={onRefresh} disabled={loading}
         style={{ marginTop: 18, minHeight: 64, padding: "0 28px", borderRadius: 32, border: 0, background: C.maroon, color: C.white, font: "inherit", fontSize: 20, fontWeight: 700, cursor: "pointer" }}>
         {loading ? "Thinking…" : "Tell me about today"}
@@ -52,8 +52,8 @@ export function FeedbackFeed({ options, tally, suggestions, requests, stats, eve
       {/* Today in three numbers */}
       <div style={{ ...sheet, display: "flex", gap: 36, flexWrap: "wrap" }}>
         <div><p style={eyebrow}>Orders today</p><p style={{ margin: "6px 0 0", fontSize: 44, fontWeight: 700, lineHeight: 1 }}>{stats?.today.orders ?? "—"}</p></div>
-        <div><p style={eyebrow}>Money taken</p><p style={{ margin: "6px 0 0", fontSize: 44, fontWeight: 700, lineHeight: 1, color: C.maroon }}>${Math.round(stats?.today.revenue ?? 0)}</p></div>
-        <div><p style={eyebrow}>Best seller</p><p style={{ margin: "6px 0 0", fontSize: 30, fontWeight: 700, lineHeight: 1.2 }}>{stats?.today.topItems[0]?.names.en ?? "Nothing yet"}</p></div>
+        <div><p style={eyebrow}>Money you made</p><p style={{ margin: "6px 0 0", fontSize: 44, fontWeight: 700, lineHeight: 1, color: C.maroon }}>${Math.round(stats?.today.revenue ?? 0)}</p></div>
+        <div><p style={eyebrow}>Sold the most</p><p style={{ margin: "6px 0 0", fontSize: 30, fontWeight: 700, lineHeight: 1.2 }}>{stats?.today.topItems[0]?.names.en ?? "Nothing yet"}</p></div>
       </div>
 
       {/* What people keep asking for */}
@@ -94,7 +94,7 @@ export function FeedbackFeed({ options, tally, suggestions, requests, stats, eve
 
       {/* Newest messages */}
       <div style={sheet}>
-        <p style={eyebrow}>Newest messages from customers</p>
+        <p style={eyebrow}>What people said today</p>
         <ul style={{ margin: "14px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 14 }}>
           {recent.map((r, i) => (
             <li key={i} style={{ padding: "14px 18px", background: C.bubble, borderRadius: "18px 18px 18px 4px", fontSize: 21, lineHeight: 1.45 }}>

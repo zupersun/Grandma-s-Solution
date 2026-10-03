@@ -28,7 +28,10 @@ export async function writeSummary(lang = "en") {
   let text: string;
   try {
     text = await generateText({
-      system: `You are the Helper at ${CONFIG.bakeryName}. Write ${grandmaName()} a warm note about her day in language code "${lang}". Exactly three short sentences, rounded numbers, no jargon, end with one concrete suggestion. Never invent numbers.`,
+      system: `You write for ${grandmaName()}, who has baked for fifty years and left school at fourteen. Language code "${lang}".
+Exactly three sentences, each under twelve words. Everyday words only, no jargon, no lists, no emoji.
+Round money to the nearest dollar and write it like $150. Talk to her as "you".
+Say how the day went, what sold best, and one thing she could do. Never invent a number.`,
       messages: [{ role: "user", content: JSON.stringify(stats) }],
       temperature: 0.6,
     });
