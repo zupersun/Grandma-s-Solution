@@ -14,7 +14,7 @@ import { useGrandmaVoice, type ClientTools } from "@/hooks/useGrandmaVoice";
 import { api } from "@/hooks/api";
 import { BakeriaGrandma } from "@/components/BakeriaGrandma";
 import { SafeImg } from "@/components/SafeImg";
-import { LANGS, type BLang, type Topic } from "@/lib/i18n/bakeria";
+import { LANGS, type BLang } from "@/lib/i18n/bakeria";
 import { CONFIG } from "@/lib/config";
 import type { Lang } from "@/lib/db/schema";
 
@@ -22,22 +22,6 @@ const MAROON = "#5a1a1f";
 const BORDER = "0.75px solid #d9d9d9";
 const CHIP_TEXT: React.CSSProperties = { fontWeight: 600, fontSize: 16, lineHeight: "normal", letterSpacing: "-0.16px", color: "#5a5959", whiteSpace: "nowrap" };
 const STREAM_GAP = 60;
-
-const CHIPS: { topic: Topic; icon: string; size: number; emoji: string }[] = [
-  { topic: "order", icon: "cookie", size: 10.9688, emoji: "🍪" },
-  { topic: "recipe", icon: "chefhat", size: 13.5, emoji: "👩‍🍳" },
-  { topic: "allergens", icon: "chefhat", size: 13.5, emoji: "👩‍🍳" },
-  { topic: "compliment", icon: "heart", size: 13.5, emoji: "❤️" },
-  { topic: "ask", icon: "question", size: 13.5, emoji: "❓" },
-];
-
-/** An asset if the artist shipped it, otherwise the emoji stand-in. */
-function Icon({ name, size, emoji, className }: { name: string; size: number; emoji: string; className?: string }) {
-  return (
-    <SafeImg src={`/grandma/${name}.svg`} className={className} style={{ display: "block", width: size, height: size, flexShrink: 0 }}
-      fallback={<span className={className} style={{ fontSize: size, lineHeight: 1, flexShrink: 0 }}>{emoji}</span>} />
-  );
-}
 
 export default function Page() {
   return (
@@ -58,8 +42,7 @@ function Bakeria() {
 
   const [lang, setLang] = useState<BLang>("en");
   const [screen, setScreen] = useState<"home" | "voice">("home");
-  const [topic, setTopic] = useState<Topic>("ask");
-  const [tapped, setTapped] = useState<Topic | null>(null);
+  const [tapped, setTapped] = useState(false);
   const [sheet, setSheet] = useState(false);
   const [typed, setTyped] = useState("");
   const [shown, setShown] = useState<Record<number, number>>({});
@@ -80,7 +63,7 @@ function Bakeria() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [customer.id, customer.points, menu, cart.lines, cart.total, votes.options]);
 
-  const voice = useGrandmaVoice({ agent: "customer", lang, clientTools });
+  const voice = useGrandmaVoice({ agent: "customer", lang, clientTools, greeting: t.hello });
   const talking = voice.avatarState === "speaking";
   const listening = voice.avatarState === "listening" && voice.mode === "voice";
 
@@ -100,21 +83,19 @@ function Bakeria() {
   useEffect(() => { if (scrollEl.current) scrollEl.current.scrollTop = scrollEl.current.scrollHeight; }, [voice.transcript, shown]);
   useEffect(() => () => { if (tapTimer.current) clearTimeout(tapTimer.current); }, []);
 
-  const openTopic = useCallback(async (next: Topic) => {
-    setTopic(next); setScreen("voice");
-    voice.seedGrandma(LANGS[lang].open[next]);
-    await voice.start("voice");
-    voice.sendContext(`The customer tapped the "${next}" option. Open on that topic.`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang, voice]);
-
-  const tapChip = (next: Topic) => {
+  const startChat = useCallback(async () => {
     if (tapped) return;
+    setTapped(true);
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) { openTopic(next); return; }
-    setTapped(next);
-    tapTimer.current = setTimeout(() => { setTapped(null); openTopic(next); }, next === "compliment" ? 350 : 250);
-  };
+    const go = async () => {
+      setTapped(false);
+      setScreen("voice");
+      await voice.start("voice");
+    };
+    if (reduce) { await go(); return; }
+    setTimeout(go, 220);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tapped, voice]);
 
   const goHome = () => { voice.stop(); setScreen("home"); setShown({}); };
   const pickLang = (l: BLang) => { setLang(l); setSheet(false); customer.setLang(l as Lang); };
@@ -129,16 +110,14 @@ function Bakeria() {
           {/* ---------- Home ---------- */}
           <div className="t-page" data-page-id="1" aria-hidden={screen === "voice"}>
             <Shelves />
-            <div style={{ position: "absolute", left: 48, right: 48, top: 579, display: "flex", flexWrap: "wrap", gap: "8px 4px", alignItems: "flex-start", alignContent: "flex-start", opacity: 0.8 }}>
-              {CHIPS.map((c) => (
-                <button key={c.topic} className={`gm-chip gm-chip--${c.topic}${tapped === c.topic ? " is-tapped" : ""}`} onClick={() => tapChip(c.topic)}
-                  style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 12px", border: BORDER, borderRadius: 18 }}>
-                  <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                    <Icon className="gm-ico" name={c.icon} size={c.size} emoji={c.emoji} />
-                    <span style={CHIP_TEXT}>{t[c.topic]}</span>
-                  </span>
-                </button>
-              ))}
+            <div style={{ position: "absolute", left: 48, right: 48, top: 600, display: "flex", justifyContent: "center" }}>
+              <button className={`gm-chip${tapped ? " is-tapped" : ""}`} onClick={startChat} aria-label={t.talkToGrandma}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, width: "100%", minHeight: 62,
+                  padding: "0 24px", border: 0, borderRadius: 31, background: MAROON, color: "#fff",
+                  fontSize: 19, fontWeight: 700, letterSpacing: "-0.2px", boxShadow: "0 6px 18px rgba(90,26,31,.26)" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0" /><path d="M12 18v3" /></svg>
+                {t.talkToGrandma}
+              </button>
             </div>
             <button className="gm-press" onClick={() => setSheet(true)} aria-label={t.language}
               style={{ position: "absolute", left: 192, top: 804, display: "block", width: 24, height: 24, padding: 0, border: 0, background: "none", cursor: "pointer" }}>

@@ -10,7 +10,7 @@ export type ClientTools = Record<string, (params: Record<string, unknown>) => Pr
 export type Turn = { role: "user" | "grandma"; text: string };
 export type AvatarState = "idle" | "listening" | "speaking" | "thinking";
 
-export function useGrandmaVoice(opts: { agent: "customer" | "helper"; lang: string; clientTools: ClientTools }) {
+export function useGrandmaVoice(opts: { agent: "customer" | "helper"; lang: string; clientTools: ClientTools; greeting?: string }) {
   const toolsRef = useRef(opts.clientTools);
   toolsRef.current = opts.clientTools;
   const toolNames = Object.keys(opts.clientTools).join(",");
@@ -48,7 +48,7 @@ export function useGrandmaVoice(opts: { agent: "customer" | "helper"; lang: stri
 
   const fallbackGreeting = useCallback(() => {
     setMode("text"); setFallback(true); setStarting(false);
-    setTranscript((t) => t.length ? t : [{ role: "grandma", text: opts.agent === "helper" ? "I'm here, Grandma. Type to me for now." : "My voice is resting, sweetheart. Type to me and I'll answer." }]);
+    setTranscript((t) => t.length ? t : [{ role: "grandma", text: opts.greeting ?? (opts.agent === "helper" ? "I'm here, Grandma. Type to me." : "My voice is resting, dear. Type to me.") }]);
   }, [opts.agent]);
 
   // A session that errors out before connecting becomes a text chat.

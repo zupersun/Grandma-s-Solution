@@ -7,7 +7,7 @@ export const LANGS: Record<BLang, {
   order: string; recipe: string; compliment: string; ask: string; allergens: string; welcome: string;
   speaking: string; listening: string; idle: string; connecting: string;
   typeInstead: string; send: string; back: string; language: string;
-  micOn: string; micStop: string; micOff: string;
+  micOn: string; micStop: string; micOff: string; talkToGrandma: string; hello: string;
   open: Record<Topic, string>;
 }> = {
   en: {
@@ -17,6 +17,7 @@ export const LANGS: Record<BLang, {
     typeInstead: "Or type to Grandma…", send: "Send", back: "Back to home", language: "Language",
     micOn: "Talk to Grandma", micStop: "Stop listening",
     micOff: "The microphone isn’t available here, so type instead.",
+    talkToGrandma: "Chat with Grandma", hello: "Come in, dear. What can I get you?",
     open: {
       order: "Hello dear! What would you like me to set aside for you, and when will you pick it up?",
       recipe: "Ooh, a recipe idea! Tell me what you’d love me to bake.",
@@ -32,6 +33,7 @@ export const LANGS: Record<BLang, {
     typeInstead: "할머니께 글로 남기기…", send: "보내기", back: "처음으로", language: "언어",
     micOn: "할머니와 이야기하기", micStop: "그만 듣기",
     micOff: "여기서는 마이크를 쓸 수 없어요. 글로 적어 주세요.",
+    talkToGrandma: "할머니와 이야기하기", hello: "어서 오렴. 뭘 줄까?",
     open: {
       order: "안녕, 우리 아가! 무엇을 따로 담아 둘까? 언제 가지러 올 거니?",
       recipe: "오, 레시피 아이디어구나! 무엇을 구워 주면 좋을지 말해 보렴.",
@@ -47,6 +49,7 @@ export const LANGS: Record<BLang, {
     typeInstead: "Hoặc nhắn cho Bà…", send: "Gửi", back: "Về trang chủ", language: "Ngôn ngữ",
     micOn: "Nói chuyện với Bà", micStop: "Dừng nghe",
     micOff: "Micro không dùng được ở đây, con nhắn tin nhé.",
+    talkToGrandma: "Nói chuyện với Bà", hello: "Vào đi con. Con muốn gì nào?",
     open: {
       order: "Chào con! Con muốn Bà để dành bánh gì, và khi nào con ghé lấy?",
       recipe: "Ồ, công thức mới hả! Con muốn Bà làm bánh gì nào?",
@@ -62,6 +65,7 @@ export const LANGS: Record<BLang, {
     typeInstead: "或者打字给外婆…", send: "发送", back: "返回首页", language: "语言",
     micOn: "和外婆说话", micStop: "停止聆听",
     micOff: "这里用不了麦克风，请打字。",
+    talkToGrandma: "和外婆聊天", hello: "快进来，乖孩子。想要点什么？",
     open: {
       order: "乖孩子你好！想让外婆给你留点什么？什么时候来拿？",
       recipe: "哦，有新食谱想法！告诉外婆你想吃什么。",
