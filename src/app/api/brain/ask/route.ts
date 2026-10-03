@@ -5,6 +5,7 @@ import { ordersForPlan } from "@/lib/brain/orders";
 import { todayStats } from "@/lib/brain/summary";
 import { generateJSON, generateText } from "@/lib/brain/llm";
 import { CONFIG, grandmaName } from "@/lib/config";
+import supplierData from "@/persona/suppliers.json";
 import { handle, ok, parseBody } from "@/lib/validate";
 
 /** Anything Grandma types to her helper. Works out whether she is changing the plan or
@@ -12,26 +13,33 @@ import { handle, ok, parseBody } from "@/lib/validate";
 export const POST = handle(async (req) => {
   const { text, lang } = await parseBody(req, z.object({ text: z.string().trim().min(1).max(400), lang: z.string().default("en") }));
 
-  let kind: "change" | "question" = "question";
-  try {
-    const out = await generateJSON({
-      system: `Decide what the bakery owner wants. "change" means she wants different amounts baked or bought (more puddings, less apple pie, stop the cookies). "question" means anything else.`,
-      user: text,
-      schema: z.object({ kind: z.enum(["change", "question"]) }),
-    });
-    kind = out.kind;
-  } catch {
-    kind = /\b(more|less|fewer|push|extra|double|stop|cut|drop|skip|bake|order)\b/i.test(text) ? "change" : "question";
+  const asksSomething = /^(how|what|when|why|who|where|is|are|do|does|did|can|could|should|tell me)\b|\?\s*$/i.test(text.trim());
+  const wantsChange = /\b(more|less|fewer|push|extra|double|stop|cut|drop|skip|bake|make|order|want|add|remove)\b/i.test(text);
+  let kind: "change" | "question" = wantsChange && !asksSomething ? "change" : asksSomething ? "question" : "question";
+  if (!wantsChange && !asksSomething) {
+    try {
+      kind = (await generateJSON({
+        system: `Decide what the bakery owner wants. "change" means different amounts baked or bought. "question" means anything else.`,
+        user: text,
+        schema: z.object({ kind: z.enum(["change", "question"]) }),
+      })).kind;
+    } catch { kind = "question"; }
   }
 
   if (kind === "change") {
+    const before = await latestPlan();
     const { plan, note } = await applyDirective(text, lang);
-    return ok({
-      kind,
-      reply: note ?? plan.summary,
-      plan,
-      supplierOrders: await ordersForPlan(plan.id),
-    });
+    let reply = note ?? "";
+    if (!reply) {
+      const prev = new Map((before?.lines ?? []).map((l) => [l.ingredient, l.qty]));
+      const grew = plan.lines.filter((l) => (prev.get(l.ingredient) ?? 0) < l.qty).sort((a, b) => b.cost - a.cost).slice(0, 3);
+      const names = grew.map((l) => (supplierData.ingredientLabels as Record<string, string>)[l.ingredient] ?? l.ingredient);
+      const list = names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}` : names[0];
+      reply = names.length
+        ? `Done. I added more ${list.toLowerCase()}. That comes to about $${Math.round(plan.totalCost).toLocaleString()}.`
+        : `Done. Your list comes to about $${Math.round(plan.totalCost).toLocaleString()}.`;
+    }
+    return ok({ kind, reply, plan, supplierOrders: await ordersForPlan(plan.id) });
   }
 
   const stats = await todayStats();

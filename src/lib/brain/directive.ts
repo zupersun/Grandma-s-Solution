@@ -25,7 +25,11 @@ function heuristic(text: string, menu: { slug: string; category: string; name: s
 export async function applyDirective(text: string, lang = "en") {
   const rows = await db.select({ slug: menuItems.slug, category: menuItems.category, names: menuItems.names }).from(menuItems);
   const menu = rows.map((r) => ({ slug: r.slug, category: r.category, name: r.names.en }));
-  let parsed: z.infer<typeof Adjustments>;
+  let parsed: z.infer<typeof Adjustments> = heuristic(text, menu);
+  if (parsed.adjustments.length) {
+    const [directive] = await db.insert(directives).values({ text, adjustments: parsed.adjustments, active: true }).returning();
+    return { directive, plan: await computePlan({ lang, explain: false }), note: undefined as string | undefined };
+  }
   try {
     parsed = await generateJSON({
       system: `You turn a bakery owner's wish into forecast multipliers. Menu slugs: ${menu.map((m) => m.slug).join(", ")}. Categories: ${[...new Set(menu.map((m) => m.category))].join(", ")}. A multiplier of 1.5 means bake 50 percent more, 0.5 means half. Use only listed slugs or categories as "item". If the wish is unclear, return an empty list and ask one short question in "note", in language "${lang}".`,
@@ -37,6 +41,6 @@ export async function applyDirective(text: string, lang = "en") {
     parsed = heuristic(text, menu);
   }
   const [directive] = await db.insert(directives).values({ text, adjustments: parsed.adjustments, active: parsed.adjustments.length > 0 }).returning();
-  const plan = await computePlan({ lang });
+  const plan = await computePlan({ lang, explain: false });
   return { directive, plan, note: parsed.note };
 }

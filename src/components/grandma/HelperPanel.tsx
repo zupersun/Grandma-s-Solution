@@ -16,7 +16,7 @@ export function HelperPanel({ clientTools, onAsk }: { clientTools: ClientTools; 
   const live = voice.status === "connected";
 
   const turns = [...voice.transcript, ...typedTurns];
-  useEffect(() => { if (scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight; }, [voice.transcript, typedTurns]);
+  useEffect(() => { if (scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight; }, [voice.transcript, typedTurns, thinking]);
 
   const status = voice.status === "connecting" ? "Putting on her glasses…" : talking ? "Your helper is talking…" : listening ? "Listening… go ahead" : "Tap the microphone to talk";
 
@@ -36,6 +36,13 @@ export function HelperPanel({ clientTools, onAsk }: { clientTools: ClientTools; 
               : { background: C.bubble, color: C.text, borderRadius: "18px 18px 18px 4px" }) }}>{t.text}</p>
           </div>
         ))}
+        {thinking && (
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <p style={{ margin: 0, padding: "12px 16px", background: C.bubble, borderRadius: "18px 18px 18px 4px", display: "flex", gap: 5, alignItems: "center" }}>
+              <span className="gm-think" /><span className="gm-think" style={{ animationDelay: "160ms" }} /><span className="gm-think" style={{ animationDelay: "320ms" }} />
+            </p>
+          </div>
+        )}
       </div>
 
       {(voice.fallback || voice.error) && <p style={{ margin: 0, fontSize: 14, color: C.muted, textAlign: "center" }}>Her voice is resting. Type to her instead.</p>}

@@ -22,7 +22,7 @@ const KEYWORDS: Record<string, string[]> = {
 const SIGNAL_CAP = 0.2;
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-export async function computePlan(input: { periodDays?: number; lang?: string } = {}) {
+export async function computePlan(input: { periodDays?: number; lang?: string; explain?: boolean } = {}) {
   const periodDays = input.periodDays ?? 14;
   const lang = input.lang ?? "en";
   const menu = await db.select().from(menuItems).where(eq(menuItems.active, true));
@@ -114,7 +114,17 @@ export async function computePlan(input: { periodDays?: number; lang?: string } 
   // 6. words from the model, with a plain fallback so the plan always exists
   let reasons: Record<string, string> = {};
   let summary = "";
+  const [previous] = await db.select().from(plans).orderBy(desc(plans.createdAt)).limit(1);
+  const wantExplain = input.explain !== false;
+  if (!wantExplain && previous) {
+    // Reuse the sentences we already wrote; only the numbers moved.
+    reasons = Object.fromEntries(previous.lines.map((l) => [l.ingredient, l.reason]));
+    const delta = previous.totalCost ? Math.round(totalCost - previous.totalCost) : 0;
+    summary = `You are spending about $${Math.round(totalCost).toLocaleString()} ${periodDays >= 28 ? "this month" : "over the next two weeks"}.` +
+      (delta > 20 ? ` That is about $${Math.abs(delta)} more than before.` : delta < -20 ? ` That is about $${Math.abs(delta)} less than before.` : " That is about the same as before.");
+  }
   try {
+    if (!wantExplain && summary) throw new Error("skip");
     const out = await generateJSON({
       system: `You write for Grandma, who has baked for fifty years and left school at fourteen. Write in language code "${lang}".
 RULES, follow every one:
@@ -122,7 +132,8 @@ RULES, follow every one:
 - Everyday words only. Say "throw away", not "waste". Say "sell more", not "push". Say "buy early", not "lead time".
 - Round money to the nearest ten dollars and write it like $3,500. Never write kilograms, units or codes.
 - Talk to her as "you". Warm, like her apprentice.
-- The summary is three sentences: what she spends, what changed and why that is good, and one thing to watch.
+- If she gave an instruction, do it without argument and say so first. Never talk her out of what she asked for.
+- The summary is three sentences: what she spends, what changed, and one useful note. Skip the note if she just told you to change something.
 - Each reason is one short sentence saying what the ingredient is for.
 - Never change a number you are given and never invent one.`,
       user: JSON.stringify({
@@ -135,8 +146,9 @@ RULES, follow every one:
     });
     reasons = out.reasons; summary = out.summary;
   } catch (e) {
-    if (!(e instanceof BrainUnavailable)) console.warn("[brain] explain failed", e);
-    summary = `You will spend about $${Math.round(totalCost / 10) * 10} on ingredients.` + (lastPlan ? ` Last month it was about $${Math.round(lastPlan.totalCost / 10) * 10}.` : "") + " I have the list ready below.";
+    if (summary) { /* reused wording */ }
+    else if (!(e instanceof BrainUnavailable)) console.warn("[brain] explain failed", e);
+    if (!summary) summary = `You will spend about $${Math.round(totalCost / 10) * 10} on ingredients.` + (lastPlan ? ` Last month it was about $${Math.round(lastPlan.totalCost / 10) * 10}.` : "") + " I have the list ready below.";
   }
   for (const l of lines) l.reason = reasons[l.ingredient] ?? `Needed for ${[...(usedBy[l.ingredient] ?? [])].slice(0, 3).join(", ")}.`;
 

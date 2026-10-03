@@ -122,3 +122,8 @@ body.ipad { font-size: 20px; }
   .gm-stage{padding:0;background:#f9f8f7}
   .gm-frame{border-radius:0;box-shadow:none;transform:scale(min(calc(100dvw / 402), calc(100dvh / 874)))}
 }
+
+/* Three dots while the helper works, so a slow answer never looks frozen. */
+.gm-think{width:9px;height:9px;border-radius:50%;background:#5a1a1f;opacity:.35;display:inline-block;animation:gm-think 1s ease-in-out infinite}
+@keyframes gm-think{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:.9;transform:translateY(-4px)}}
+@media (prefers-reduced-motion: reduce){.gm-think{animation:none;opacity:.5}}
