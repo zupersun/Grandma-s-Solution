@@ -246,7 +246,7 @@ function Bakeria() {
 
 function Shelves() {
   return (
-    <SafeImg src="/grandma/shelves.png" style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 448, objectFit: "contain", objectPosition: "top", pointerEvents: "none" }}
+    <SafeImg src="/grandma/shelves.png" style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, objectFit: "cover", pointerEvents: "none" }}
       fallback={
         <div aria-hidden style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, pointerEvents: "none" }}>
           {[0, 1, 2].map((i) => (
