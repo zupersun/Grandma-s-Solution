@@ -10,7 +10,7 @@ const check = (cond: unknown, msg: string) => { if (!cond) throw new Error("FAIL
 
 const cid = "cus_smoke_" + Date.now().toString(36);
 const menu = await j("/api/menu"); check(menu.items.length >= 12, `menu has ${menu.items.length} items`);
-await j(`/api/customers/${cid}`, { method: "PATCH", json: { name: "Smokey", lang: "es" } });
+await j(`/api/customers/${cid}`, { method: "PATCH", json: { name: "Smokey", lang: "zh" } });
 const o = await j("/api/orders", { method: "POST", json: { customerId: cid, channel: "web", items: [{ slug: "mango-pie", qty: 2 }, { slug: "drip-coffee", qty: 1 }] } });
 check(o.order.total === 15.75, "order priced from menu");
 const pay = await j("/api/checkout", { method: "POST", json: { orderId: o.order.id } });

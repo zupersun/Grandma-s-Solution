@@ -44,3 +44,60 @@ body.ipad { font-size: 20px; }
 .anim-sway { animation: sway 1.4s ease-in-out infinite; }
 .anim-ring { animation: pulse-ring 1.4s ease-out infinite; }
 .anim-pop { animation: pop .35s ease-out; }
+
+/* ===== Grandma's Bakeria prototype (docs spec). Motion tokens from transitions.dev. ===== */
+:root{--duration-very-slow:500ms;--distance-medium:12px;--blur-medium:3px;--duration-quick:150ms;--duration-fast:250ms;--duration-medium:350ms;--duration-slow:400ms;--ease-smooth-out:cubic-bezier(0.22,1,0.36,1);--ease-in-out:ease-in-out;--ease-bounce-strong:cubic-bezier(0.34,3.85,0.64,1);--distance-micro:4px;--scale-medium:0.97;--like-pop:350ms;--like-pop-ease:cubic-bezier(0.34,1.96,0.64,1)}
+.gm-chip{cursor:pointer;background:#ffffff;font:inherit;-webkit-tap-highlight-color:transparent;transition:transform var(--duration-fast) var(--ease-bounce-strong),background-color var(--duration-quick) var(--ease-smooth-out),border-color var(--duration-quick) var(--ease-smooth-out)}
+.gm-chip:active,.gm-chip.is-tapped{transform:scale(var(--scale-medium));background:#f6efe6;border-color:#e6d6c3 !important;transition-duration:var(--duration-quick);transition-timing-function:var(--ease-smooth-out)}
+.gm-chip.is-tapped .gm-ico{transform-origin:50% 60%}
+.gm-chip--order.is-tapped .gm-ico{animation:gm-wobble var(--duration-fast) var(--ease-in-out)}
+.gm-chip--recipe.is-tapped .gm-ico{animation:gm-bounce var(--duration-fast) var(--ease-in-out)}
+.gm-chip--compliment.is-tapped .gm-ico{animation:gm-beat var(--like-pop) var(--like-pop-ease)}
+.gm-chip--ask.is-tapped .gm-ico{animation:gm-tilt var(--duration-fast) var(--ease-in-out)}
+.gm-chip--allergens.is-tapped .gm-ico{animation:gm-sniff var(--duration-fast) var(--ease-in-out)}
+@keyframes gm-wobble{0%{transform:rotate(0)}30%{transform:rotate(-12deg)}65%{transform:rotate(10deg)}100%{transform:rotate(0)}}
+@keyframes gm-bounce{0%,100%{transform:translateY(0)}40%{transform:translateY(calc(var(--distance-micro) * -1))}}
+@keyframes gm-beat{0%{transform:scale(1)}30%{transform:scale(0.82)}100%{transform:scale(1)}}
+@keyframes gm-sniff{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-1.5px) rotate(-8deg)}75%{transform:translateX(1.5px) rotate(8deg)}}
+@keyframes gm-tilt{0%,100%{transform:rotate(0)}45%{transform:rotate(-15deg)}}
+.gm-hello{animation:gm-hello-in var(--duration-very-slow) var(--ease-smooth-out) 200ms both}
+@keyframes gm-hello-in{from{opacity:0;transform:translateY(var(--distance-medium));filter:blur(var(--blur-medium))}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+.gm-press{-webkit-tap-highlight-color:transparent;transition:transform var(--duration-fast) var(--ease-bounce-strong),box-shadow var(--duration-fast) var(--ease-smooth-out)}
+.gm-press:active{transform:scale(var(--scale-medium));transition-duration:var(--duration-quick);transition-timing-function:var(--ease-smooth-out)}
+.gm-mic:active{box-shadow:0 2px 8px rgba(90,26,31,.22) !important}
+@property --gm-fade{syntax:'<percentage>';inherits:false;initial-value:122%}
+.gm-aura{filter:drop-shadow(0 0 0 rgba(226,200,166,0)) drop-shadow(0 0 0 rgba(226,200,166,0));transition:filter var(--duration-medium) var(--ease-smooth-out)}
+.gm-aura.is-voice{filter:drop-shadow(0 0 5px rgba(226,200,166,.45)) drop-shadow(0 0 12px rgba(226,200,166,.25));transition-duration:var(--duration-slow)}
+.gm-aura.is-voice.on{animation:gm-glow-talk 1.4s ease-in-out infinite}
+.gm-aura.is-voice.listen{animation:gm-glow-listen .9s ease-in-out infinite}
+@keyframes gm-glow-talk{0%,100%{filter:drop-shadow(0 0 6px rgba(226,190,140,.7)) drop-shadow(0 0 16px rgba(226,190,140,.4))}50%{filter:drop-shadow(0 0 9px rgba(226,190,140,.9)) drop-shadow(0 0 24px rgba(226,190,140,.55))}}
+@keyframes gm-glow-listen{0%,100%{filter:drop-shadow(0 0 6px rgba(240,180,188,.7)) drop-shadow(0 0 16px rgba(240,180,188,.4))}50%{filter:drop-shadow(0 0 9px rgba(240,180,188,.9)) drop-shadow(0 0 24px rgba(240,180,188,.55))}}
+.gm-win{position:absolute;left:69px;top:219px;width:264px;height:311px;overflow:hidden;--gm-fade:122%;-webkit-mask-image:linear-gradient(to bottom,#000 var(--gm-fade),transparent calc(var(--gm-fade) + 22%));mask-image:linear-gradient(to bottom,#000 var(--gm-fade),transparent calc(var(--gm-fade) + 22%));transition:left var(--duration-medium) var(--ease-smooth-out),top var(--duration-medium) var(--ease-smooth-out),width var(--duration-medium) var(--ease-smooth-out),height var(--duration-medium) var(--ease-smooth-out),--gm-fade var(--duration-medium) var(--ease-smooth-out)}
+.gm-aura.is-voice .gm-win{left:101px;top:136px;width:200px;height:188px;--gm-fade:78%;transition-duration:var(--duration-slow)}
+.gm-win::after{content:"";position:absolute;left:0;right:0;bottom:0;height:48px;background:linear-gradient(to bottom,rgba(249,248,247,0),#f9f8f7);opacity:1;transition:opacity var(--duration-medium) var(--ease-smooth-out)}
+.gm-aura.is-voice .gm-win::after{opacity:0;transition-duration:var(--duration-slow)}
+.gm-img{position:absolute;max-width:none;transition:left var(--duration-medium) var(--ease-smooth-out),top var(--duration-medium) var(--ease-smooth-out),width var(--duration-medium) var(--ease-smooth-out),height var(--duration-medium) var(--ease-smooth-out),opacity 140ms ease-in-out;left:-101.5px;top:-72.37px;width:512px;height:512px}
+.gm-aura.is-voice .gm-img{transition-duration:var(--duration-slow),var(--duration-slow),var(--duration-slow),var(--duration-slow),140ms;left:-41.5px;top:-43.7px;width:310px;height:310px}
+.gm-img-talk{will-change:opacity}
+:root{--page-slide-dur:250ms;--page-fade-dur:250ms;--page-slide-distance:8px;--page-blur:3px;--page-stagger:0ms;--page-exit-enabled:1;--page-slide-ease:cubic-bezier(0.22, 1, 0.36, 1);--page-fade-ease:cubic-bezier(0.22, 1, 0.36, 1)}
+.t-page-slide{position:relative}
+.t-page-slide .t-page[data-page-id="1"]{--t-page-from-x:calc(var(--page-slide-distance) * -1)}
+.t-page-slide .t-page[data-page-id="2"]{--t-page-from-x:var(--page-slide-distance)}
+.t-page-slide .t-page{position:absolute;inset:0;opacity:0;pointer-events:none;transform:translateX(calc(var(--t-page-from-x, 0px) * var(--page-exit-enabled)));filter:blur(calc(var(--page-blur) * var(--page-exit-enabled)));transition:opacity var(--page-fade-dur) var(--page-fade-ease),transform var(--page-slide-dur) var(--page-slide-ease),filter var(--page-slide-dur) var(--page-slide-ease);will-change:opacity,transform,filter}
+.t-page-slide[data-page="1"] .t-page[data-page-id="1"],.t-page-slide[data-page="2"] .t-page[data-page-id="2"]{opacity:1;pointer-events:auto;transform:translateX(0);filter:blur(0);transition-delay:var(--page-stagger)}
+:root{--stream-gap:60ms;--stream-fade:350ms;--stream-blur:1px;--stream-ease:cubic-bezier(0.22, 1, 0.36, 1)}
+.t-stream-w{opacity:0;filter:blur(var(--stream-blur));transition:opacity var(--stream-fade) var(--stream-ease),filter var(--stream-fade) var(--stream-ease)}
+.t-stream-w.is-in{opacity:1;filter:blur(0)}
+.gm-scroll::-webkit-scrollbar{width:0}
+@media (prefers-reduced-motion: reduce){
+  .gm-hello{animation:none}
+  .gm-chip,.gm-press{transition:background-color var(--duration-quick) var(--ease-smooth-out)}
+  .gm-chip:active,.gm-chip.is-tapped,.gm-press:active{transform:none}
+  .gm-chip.is-tapped .gm-ico{animation:none}
+  .gm-aura,.gm-win{transition:none}
+  .gm-img{transition:opacity 140ms ease-in-out}
+  .gm-aura.is-voice.on{animation:none;filter:drop-shadow(0 0 8px rgba(226,190,140,.85)) drop-shadow(0 0 20px rgba(226,190,140,.5))}
+  .gm-aura.is-voice.listen{animation:none;filter:drop-shadow(0 0 8px rgba(240,180,188,.85)) drop-shadow(0 0 20px rgba(240,180,188,.5))}
+  .t-page-slide .t-page{transition:none !important}
+  .t-stream-w{transition:none !important;filter:none !important;opacity:1 !important}
+}

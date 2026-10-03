@@ -1,81 +1,275 @@
 "use client";
-import { useMemo, useState } from "react";
+/* Grandma's Bakeria, customer screen. Layout, colours, motion and copy follow docs/PROMPT.md
+   (Figma frame "iPhone 17 - 1", 402x874). Voice is the real ElevenLabs agent with a Gemini text
+   fallback, and the chips drive real orders, loyalty, votes and suggestions through client tools. */
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ConversationProvider } from "@elevenlabs/react";
 import { useCustomer } from "@/hooks/useCustomer";
 import { useMenu } from "@/hooks/useMenu";
 import { useCart } from "@/hooks/useCart";
 import { useVotes } from "@/hooks/useVotes";
 import { useRequests, useSuggestions } from "@/hooks/useFeedback";
-import type { ClientTools } from "@/hooks/useGrandmaVoice";
+import { useGrandmaVoice, type ClientTools } from "@/hooks/useGrandmaVoice";
 import { api } from "@/hooks/api";
-import { TalkToGrandma } from "@/components/TalkToGrandma";
-import { Cart, LangPicker, LoyaltyBadge, Menu, QuipTicker, SuggestionBox, VotePanel } from "@/components/customer-bits";
-import { pick, t } from "@/lib/i18n/strings";
+import { BakeriaGrandma } from "@/components/BakeriaGrandma";
+import { LANGS, type BLang, type Topic } from "@/lib/i18n/bakeria";
 import { CONFIG } from "@/lib/config";
+import type { Lang } from "@/lib/db/schema";
 
-export default function CustomerPage() {
+const MAROON = "#5a1a1f";
+const BORDER = "0.75px solid #d9d9d9";
+const CHIP_TEXT: React.CSSProperties = { fontWeight: 600, fontSize: 16, lineHeight: "normal", letterSpacing: "-0.16px", color: "#5a5959", whiteSpace: "nowrap" };
+const STREAM_GAP = 60;
+
+const CHIPS: { topic: Topic; icon: string; size: number; emoji: string }[] = [
+  { topic: "order", icon: "cookie", size: 10.9688, emoji: "🍪" },
+  { topic: "recipe", icon: "chefhat", size: 13.5, emoji: "👩‍🍳" },
+  { topic: "allergens", icon: "chefhat", size: 13.5, emoji: "👩‍🍳" },
+  { topic: "compliment", icon: "heart", size: 13.5, emoji: "❤️" },
+  { topic: "ask", icon: "question", size: 13.5, emoji: "❓" },
+];
+
+/** An asset if the artist shipped it, otherwise the emoji stand-in. */
+function Icon({ name, size, emoji, className }: { name: string; size: number; emoji: string; className?: string }) {
+  const [missing, setMissing] = useState(false);
+  if (missing) return <span className={className} style={{ fontSize: size + 2, lineHeight: 1, flexShrink: 0 }}>{emoji}</span>;
+  return <img className={className} src={`/grandma/${name}.svg`} alt="" style={{ display: "block", width: size, height: size, flexShrink: 0 }} onError={() => setMissing(true)} />;
+}
+
+export default function Page() {
+  return (
+    <ConversationProvider>
+      <Bakeria />
+    </ConversationProvider>
+  );
+}
+
+function Bakeria() {
   const router = useRouter();
   const customer = useCustomer();
   const { items: menu } = useMenu();
   const cart = useCart(menu, customer.id);
-  const votes = useVotes(customer.id, 5000);
+  const votes = useVotes(customer.id, 8000);
   const suggestions = useSuggestions(customer.id);
   const requests = useRequests();
-  const [busy, setBusy] = useState(false);
-  const [nameDraft, setNameDraft] = useState("");
-  const lang = customer.lang;
 
-  const checkout = async () => {
-    setBusy(true);
-    try {
-      const { orderId, url } = await cart.checkout();
-      if (url) window.location.href = url; else router.push(`/order/${orderId}`);
-    } catch (e) { alert((e as Error).message); } finally { setBusy(false); }
-  };
+  const [lang, setLang] = useState<BLang>("en");
+  const [screen, setScreen] = useState<"home" | "voice">("home");
+  const [topic, setTopic] = useState<Topic>("ask");
+  const [tapped, setTapped] = useState<Topic | null>(null);
+  const [sheet, setSheet] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [shown, setShown] = useState<Record<number, number>>({});
+  const scrollEl = useRef<HTMLDivElement | null>(null);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const t = LANGS[lang];
+
+  useEffect(() => { if (customer.lang && customer.lang in LANGS) setLang(customer.lang as BLang); }, [customer.lang]);
 
   const clientTools: ClientTools = useMemo(() => ({
-    addLoyaltyPoints: async ({ reason }) => { const r = await api<{ points: number; awarded: number }>("/api/loyalty", { method: "POST", json: { customerId: customer.id, reason: (reason as string) || "chat" } }); customer.bumpPoints(r.points); return r.awarded ? `Gave ${r.awarded} points. ${customer.name || "They"} now have ${r.points}.` : `No new points right now, they already have ${r.points}.`; },
-    addToCart: async ({ itemSlug, qty }) => { const m = menu.find((x) => x.slug === itemSlug || x.names.en.toLowerCase() === String(itemSlug).toLowerCase()); if (!m) return `I don't have ${itemSlug}. Menu: ${menu.map((x) => x.slug).join(", ")}`; const n = Number(qty) || 1; cart.add(m.slug, n); return `Added ${n} ${m.names.en}. The order is now $${(cart.total + m.price * n).toFixed(2)}.`; },
-    placeOrder: async () => { if (!cart.lines.length) return "The basket is empty."; const { orderId, url } = await cart.checkout(); if (url) { window.location.href = url; return "Sending them to pay."; } router.push(`/order/${orderId}`); return "Order placed and paid. The pickup code is on their screen now."; },
-    voteFlavour: async ({ option }) => { const o = votes.options.find((x) => x.id === option || x.label.en.toLowerCase() === String(option).toLowerCase()); if (!o) return `Options are ${votes.options.map((x) => x.id).join(", ")}.`; const r = await votes.vote(o.id); customer.refresh(); return `Voted ${o.label.en}. ${r.awarded ? `+${r.awarded} points.` : "Vote changed."} Tally: ${Object.entries(r.tally).map(([k, v]) => `${k} ${v}`).join(", ")}.`; },
-    submitSuggestion: async ({ text }) => { const r = await suggestions.submit(String(text), "voice"); customer.refresh(); return r.note ?? `Saved the suggestion. +${r.awarded} points.`; },
-    logRequest: async ({ text, itemHint }) => { await requests.log(customer.id, String(text), itemHint ? String(itemHint) : undefined, "voice"); return "Noted for Grandma's helper."; },
-    getMyPoints: async () => `${customer.name || "They"} have ${customer.points} points. ${CONFIG.loyalty.redeemAt} points is ${CONFIG.loyalty.redeemReward}.`,
+    addLoyaltyPoints: async ({ reason }) => { const r = await api<{ points: number; awarded: number }>("/api/loyalty", { method: "POST", json: { customerId: customer.id, reason: (reason as string) || "chat" } }); customer.bumpPoints(r.points); return r.awarded ? `Gave ${r.awarded} points, ${r.points} total.` : `They already have ${r.points} points today.`; },
+    addToCart: async ({ itemSlug, qty }) => { const m = menu.find((x) => x.slug === itemSlug || x.names.en?.toLowerCase() === String(itemSlug).toLowerCase()); if (!m) return `I don't have that. I do have: ${menu.slice(0, 8).map((x) => x.names.en).join(", ")}.`; const n = Number(qty) || 1; cart.add(m.slug, n); return `Set aside ${n} ${m.names.en}. That comes to $${(cart.total + m.price * n).toFixed(2)}.`; },
+    placeOrder: async () => { if (!cart.lines.length) return "Nothing set aside yet, dear."; const { orderId, url } = await cart.checkout(); if (url) { window.location.href = url; return "Sending them to pay."; } router.push(`/order/${orderId}`); return "All wrapped up. The pickup code is on their screen."; },
+    voteFlavour: async ({ option }) => { const o = votes.options.find((x) => x.id === option || x.label.en?.toLowerCase() === String(option).toLowerCase()); if (!o) return `The choices are ${votes.options.map((x) => x.label.en).join(", ")}.`; const r = await votes.vote(o.id); customer.refresh(); return `Voted ${o.label.en}.${r.awarded ? ` +${r.awarded} points.` : ""}`; },
+    submitSuggestion: async ({ text }) => { const r = await suggestions.submit(String(text), "voice"); customer.refresh(); return r.note ?? `Written in my recipe book. +${r.awarded} points.`; },
+    logRequest: async ({ text, itemHint }) => { await requests.log(customer.id, String(text), itemHint ? String(itemHint) : undefined, "voice"); return "Noted for my helper."; },
+    getMyPoints: async () => `${customer.points} points. ${CONFIG.loyalty.redeemAt} gets ${CONFIG.loyalty.redeemReward}.`,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [customer.id, customer.name, customer.points, menu, cart.lines, cart.total, votes.options, votes.tally]);
+  }), [customer.id, customer.points, menu, cart.lines, cart.total, votes.options]);
+
+  const voice = useGrandmaVoice({ agent: "customer", lang, clientTools });
+  const talking = voice.avatarState === "speaking";
+  const listening = voice.avatarState === "listening" && voice.mode === "voice";
+
+  // Streaming captions: reveal one word at a time for Grandma's newest line.
+  useEffect(() => {
+    const i = voice.transcript.length - 1;
+    const turn = voice.transcript[i];
+    if (!turn || turn.role !== "grandma" || shown[i] !== undefined) return;
+    const words = turn.text.split(/(\s+)/).filter((w) => w.trim()).length;
+    let n = 0;
+    setShown((s) => ({ ...s, [i]: 0 }));
+    const tick = setInterval(() => { n += 1; setShown((s) => ({ ...s, [i]: n })); if (n >= words) clearInterval(tick); }, STREAM_GAP);
+    return () => clearInterval(tick);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voice.transcript.length]);
+
+  useEffect(() => { if (scrollEl.current) scrollEl.current.scrollTop = scrollEl.current.scrollHeight; }, [voice.transcript, shown]);
+  useEffect(() => () => { if (tapTimer.current) clearTimeout(tapTimer.current); }, []);
+
+  const openTopic = useCallback(async (next: Topic) => {
+    setTopic(next); setScreen("voice");
+    voice.seedGrandma(LANGS[lang].open[next]);
+    await voice.start("voice");
+    voice.sendContext(`The customer tapped the "${next}" option. Open on that topic.`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang, voice]);
+
+  const tapChip = (next: Topic) => {
+    if (tapped) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { openTopic(next); return; }
+    setTapped(next);
+    tapTimer.current = setTimeout(() => { setTapped(null); openTopic(next); }, next === "compliment" ? 350 : 250);
+  };
+
+  const goHome = () => { voice.stop(); setScreen("home"); setShown({}); };
+  const pickLang = (l: BLang) => { setLang(l); setSheet(false); customer.setLang(l as Lang); };
+  const status = voice.status === "connecting" ? t.connecting : talking ? t.speaking : listening ? t.listening : t.idle;
 
   return (
-    <main className="mx-auto max-w-3xl space-y-4 p-4 pb-32">
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-3xl font-black">🥧 {CONFIG.bakeryName}</h1>
-        <div className="flex items-center gap-2">
-          <LangPicker lang={lang} onChange={customer.setLang} />
-          <LoyaltyBadge points={customer.points} lang={lang} />
+    <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#efedea", padding: 16 }}>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&display=swap" />
+      <div style={{ position: "relative", width: 402, height: 874, overflow: "hidden", background: "#f9f8f7", fontFamily: "'Hanken Grotesk', system-ui, sans-serif", color: "#2b2222", borderRadius: 20, boxShadow: "0 12px 48px rgba(43,34,34,.18)" }}>
+
+        <div className="t-page-slide" data-page={screen === "voice" ? "2" : "1"} style={{ position: "absolute", inset: 0 }}>
+          {/* ---------- Home ---------- */}
+          <div className="t-page" data-page-id="1" aria-hidden={screen === "voice"}>
+            <Shelves />
+            <div style={{ position: "absolute", left: 48, right: 48, top: 579, display: "flex", flexWrap: "wrap", gap: "8px 4px", alignItems: "flex-start", alignContent: "flex-start", opacity: 0.8 }}>
+              {CHIPS.map((c) => (
+                <button key={c.topic} className={`gm-chip gm-chip--${c.topic}${tapped === c.topic ? " is-tapped" : ""}`} onClick={() => tapChip(c.topic)}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 12px", border: BORDER, borderRadius: 18 }}>
+                  <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <Icon className="gm-ico" name={c.icon} size={c.size} emoji={c.emoji} />
+                    <span style={CHIP_TEXT}>{t[c.topic]}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+            <button className="gm-press" onClick={() => setSheet(true)} aria-label={t.language}
+              style={{ position: "absolute", left: 192, top: 804, display: "block", width: 24, height: 24, padding: 0, border: 0, background: "none", cursor: "pointer" }}>
+              <Globe name="globe" />
+            </button>
+            <div style={{ position: "absolute", left: 24, right: 24, top: 170, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
+              <p className="gm-hello" style={{ position: "relative", margin: 0, padding: "8px 14px", background: "#fff", border: BORDER, borderRadius: 18, fontWeight: 600, fontSize: 16, letterSpacing: "-0.16px", color: MAROON, textAlign: "center", boxShadow: "0 2px 8px rgba(90,26,31,.06)" }}>
+                {t.welcome}
+                <span aria-hidden style={{ position: "absolute", left: "50%", bottom: -6, width: 10, height: 10, marginLeft: -5, background: "#fff", borderRight: BORDER, borderBottom: BORDER, transform: "rotate(45deg)" }} />
+              </p>
+            </div>
+            <Awning />
+          </div>
+
+          {/* ---------- Voice chat ---------- */}
+          <div className="t-page" data-page-id="2" aria-hidden={screen !== "voice"}>
+            <div style={{ boxSizing: "border-box", width: 402, height: 874, display: "flex", flexDirection: "column", padding: "56px 24px 32px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 44 }}>
+                <button className="gm-press" onClick={goHome} aria-label={t.back} style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", border: BORDER, borderRadius: 22, background: "#fff", cursor: "pointer" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5a5959" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M15 18l-6-6 6-6" /></svg>
+                </button>
+                <Logo />
+                <button className="gm-press" onClick={() => setSheet(true)} aria-label={t.language} style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", border: 0, background: "none", cursor: "pointer" }}>
+                  <Globe name="globe-header" />
+                </button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginTop: 28 }}>
+                <div aria-hidden style={{ width: 200, height: 196 }} />
+                <p role="status" style={{ margin: 0, fontSize: 15, fontWeight: 600, color: MAROON }}>{status}</p>
+              </div>
+
+              <div className="gm-scroll" ref={scrollEl} aria-live="polite" style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, padding: "16px 0" }}>
+                {voice.transcript.map((turn, i) => {
+                  const mine = turn.role === "user";
+                  const segs = turn.text.split(/(?<=\s)/);
+                  const visible = mine ? segs.length : shown[i] ?? segs.length;
+                  return (
+                    <div key={i} style={{ display: "flex", justifyContent: mine ? "flex-end" : "flex-start" }}>
+                      <p aria-label={turn.text} style={{ margin: 0, maxWidth: "82%", padding: "10px 14px", fontSize: mine ? 15 : 17, lineHeight: 1.4, ...(mine ? { background: MAROON, color: "#fff", borderRadius: "18px 18px 4px 18px" } : { background: "#f6f1eb", color: "#2b2222", borderRadius: "18px 18px 18px 4px" }) }}>
+                        {segs.map((seg, k) => <span key={k} className={`t-stream-w${k < visible ? " is-in" : ""}`} aria-hidden>{seg}</span>)}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {(voice.fallback || voice.error) && <p style={{ margin: "0 0 8px", fontSize: 13, color: "#5a5959", textAlign: "center" }}>{t.micOff}</p>}
+
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+                <button className="gm-press gm-mic" onClick={() => (voice.status === "connected" && voice.mode === "voice" ? voice.stop() : voice.start("voice"))}
+                  aria-label={listening ? t.micStop : t.micOn} aria-pressed={listening}
+                  style={{ width: 76, height: 76, borderRadius: "50%", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 18px rgba(90,26,31,.28)", background: listening ? "#a3243b" : MAROON }}>
+                  {listening ? (
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" aria-hidden><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
+                  ) : (
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0" /><path d="M12 18v3" /></svg>
+                  )}
+                </button>
+                <form onSubmit={(e) => { e.preventDefault(); if (!typed.trim()) return; if (voice.status !== "connected") voice.start("text").then(() => voice.sendText(typed)); else voice.sendText(typed); setTyped(""); }} style={{ display: "flex", gap: 8, width: "100%" }}>
+                  <label htmlFor="gm-type" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>{t.typeInstead}</label>
+                  <input id="gm-type" value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={t.typeInstead} autoComplete="off"
+                    style={{ flex: 1, minWidth: 0, height: 44, boxSizing: "border-box", padding: "0 16px", border: BORDER, borderRadius: 22, font: "inherit", fontSize: 15, color: "#2b2222", background: "#fff" }} />
+                  <button className="gm-press" type="submit" style={{ height: 44, padding: "0 18px", border: 0, borderRadius: 22, background: MAROON, color: "#fff", font: "inherit", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>{t.send}</button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
-      </header>
 
-      <TalkToGrandma agent="customer" lang={lang} clientTools={clientTools} />
+        <BakeriaGrandma voice={screen === "voice"} talking={talking} listening={listening} />
 
-      {!customer.name && (
-        <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (nameDraft.trim()) customer.setName(nameDraft.trim()); }}>
-          <input className="min-h-12 flex-1 rounded-2xl border border-crust/20 bg-white px-4" placeholder={t("yourName", lang)} value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} />
-          <button className="btn-soft" type="submit">OK</button>
-        </form>
-      )}
-      <QuipTicker lang={lang} />
+        {cart.items.length > 0 && screen === "home" && (
+          <button onClick={() => cart.checkout().then(({ orderId, url }) => (url ? (window.location.href = url) : router.push(`/order/${orderId}`)))}
+            className="gm-press" style={{ position: "absolute", left: 24, right: 24, bottom: 56, height: 48, border: 0, borderRadius: 24, background: MAROON, color: "#fff", font: "inherit", fontSize: 15, fontWeight: 600, cursor: "pointer", boxShadow: "0 6px 18px rgba(90,26,31,.28)" }}>
+            {cart.items.reduce((s, x) => s + x.qty, 0)} set aside · ${cart.total.toFixed(2)} · pick up
+          </button>
+        )}
 
-      <section id="menu" className="space-y-2">
-        <h2 className="text-2xl font-black">🍞 {t("menu", lang)}</h2>
-        <Menu items={menu} lang={lang} onAdd={(slug) => cart.add(slug)} />
-      </section>
-
-      <VotePanel options={votes.options} tally={votes.tally} myVote={votes.myVote} lang={lang} onVote={(id) => votes.vote(id).then(() => customer.refresh())} />
-      <SuggestionBox lang={lang} onSubmit={async (text) => { await suggestions.submit(text, "ui"); customer.refresh(); }} />
-
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-3xl p-3">
-        <Cart items={cart.items} total={cart.total} lang={lang} onRemove={cart.remove} onCheckout={checkout} busy={busy} />
+        {sheet && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", background: "rgba(43,34,34,.35)" }}>
+            <button onClick={() => setSheet(false)} aria-label="Close" style={{ flex: 1, border: 0, background: "transparent", cursor: "pointer" }} />
+            <div role="dialog" aria-label={t.language} style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "20px 24px 40px", display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ width: 40, height: 4, borderRadius: 2, background: "#d9d9d9", alignSelf: "center", marginBottom: 8 }} />
+              <p style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 700 }}>{t.language}</p>
+              {(Object.keys(LANGS) as BLang[]).map((k) => {
+                const on = lang === k;
+                return (
+                  <button key={k} className="gm-press" onClick={() => pickLang(k)} aria-pressed={on}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 52, padding: "0 16px", borderRadius: 14, font: "inherit", fontSize: 17, fontWeight: 600, cursor: "pointer", textAlign: "left", color: "#2b2222", ...(on ? { border: `1.5px solid ${MAROON}`, background: "#fbf3f3" } : { border: BORDER, background: "#fff" }) }}>
+                    <span>{LANGS[k].name}</span>
+                    {on && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={MAROON} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12l5 5L20 7" /></svg>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
-      <p className="pt-8 text-center text-xs opacity-50">A fictional bakery for the Socratica × Ramp hack. {pick(CONFIG.languageNames, lang)}</p>
     </main>
   );
+}
+
+/* ---- Asset wrappers: real art when present, a drawn stand-in otherwise ---- */
+
+function Shelves() {
+  const [missing, setMissing] = useState(false);
+  if (missing) return (
+    <div aria-hidden style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, pointerEvents: "none", opacity: 0.5 }}>
+      {[0, 1, 2].map((i) => (
+        <div key={i} style={{ position: "absolute", left: 0, right: 0, top: 40 + i * 92, height: 8, background: "#e4d7c6", boxShadow: "0 3px 6px rgba(43,34,34,.08)" }} />
+      ))}
+    </div>
+  );
+  return <img src="/grandma/shelves.png" alt="" style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, objectFit: "cover", pointerEvents: "none" }} onError={() => setMissing(true)} />;
+}
+
+function Awning() {
+  const [missing, setMissing] = useState(false);
+  if (missing) return (
+    <div aria-hidden style={{ position: "absolute", left: 0, top: 0, width: 402, height: 92, pointerEvents: "none", background: "repeating-linear-gradient(90deg, #a3243b 0 28px, #f6f1eb 28px 56px)", borderBottomLeftRadius: "50% 28px", borderBottomRightRadius: "50% 28px", boxShadow: "0 6px 14px rgba(43,34,34,.12)" }} />
+  );
+  return <img src="/grandma/awning.svg" alt="" width={489} height={251} style={{ position: "absolute", left: -85, top: -90, display: "block", pointerEvents: "none" }} onError={() => setMissing(true)} />;
+}
+
+function Logo() {
+  const [missing, setMissing] = useState(false);
+  if (missing) return <span style={{ fontSize: 17, fontWeight: 700, color: MAROON, letterSpacing: "-0.2px" }}>Grandma&apos;s Bakeria</span>;
+  return <img src="/grandma/logo.png" alt="Grandma's Bakeria" style={{ display: "block", width: 107, height: 31.4, objectFit: "cover" }} onError={() => setMissing(true)} />;
+}
+
+function Globe({ name }: { name: string }) {
+  const [missing, setMissing] = useState(false);
+  if (missing) return <span style={{ fontSize: 22, lineHeight: 1 }}>🌐</span>;
+  return <img src={`/grandma/${name}.svg`} alt="" width={24} height={24} style={{ display: "block" }} onError={() => setMissing(true)} />;
 }

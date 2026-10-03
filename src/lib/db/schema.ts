@@ -4,7 +4,7 @@ const now = () => new Date();
 const ts = (name: string) =>
   integer(name, { mode: "timestamp_ms" }).notNull().$defaultFn(now);
 
-export type Lang = "en" | "es" | "zh" | "fr";
+export type Lang = "en" | "zh" | "ko" | "vi";
 export type OrderStatus = "new" | "making" | "ready" | "picked_up";
 export type Localized = Record<string, string>;
 

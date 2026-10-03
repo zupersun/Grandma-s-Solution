@@ -11,7 +11,7 @@ export const GET = handle(async (_req, ctx) => {
 
 export const PATCH = handle(async (req, ctx) => {
   const { id } = await ctx.params;
-  const body = await parseBody(req, z.object({ name: z.string().trim().max(40).optional(), lang: z.enum(["en", "es", "zh", "fr"]).optional() }));
+  const body = await parseBody(req, z.object({ name: z.string().trim().max(40).optional(), lang: z.enum(["en", "zh", "ko", "vi"]).optional() }));
   await ensureCustomer(id);
   const [customer] = await db.update(schema.customers).set(body).where(eq(schema.customers.id, id)).returning();
   return ok({ customer });

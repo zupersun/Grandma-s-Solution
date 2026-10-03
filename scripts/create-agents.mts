@@ -67,8 +67,8 @@ async function ensureTools(tools: Tool[]): Promise<string[]> {
 }
 
 const firstMessages = {
-  customer: { en: "Oh, hello sweetheart! Come in, come in. What can Grandma get you today?", es: "¡Hola, cariño! Pasa, pasa. ¿Qué te preparo hoy?", zh: "哎呀，宝贝，快进来！外婆今天给你做点什么？", fr: "Oh, bonjour mon cœur ! Entre, entre. Qu'est-ce que Grand-mère te prépare aujourd'hui ?" },
-  helper: { en: "I'm here, Grandma. Want to hear how today is going, or look at what to buy?", es: "Aquí estoy, abuela. ¿Te cuento cómo va el día o vemos qué comprar?", zh: "我在呢，外婆。想听听今天怎么样，还是看看要买什么？", fr: "Je suis là, Grand-mère. On regarde la journée ou la liste des courses ?" },
+  customer: { en: "Oh, hello sweetheart! Come in, come in. What can Grandma get you today?", zh: "哎呀，宝贝，快进来！外婆今天给你做点什么？", ko: "어서 와요, 우리 손님! 들어와요. 할머니가 뭐 드릴까요?", vi: "Ôi, chào con! Vào đi, vào đi. Bà lấy gì cho con nào?" },
+  helper: { en: "I'm here, Grandma. Want to hear how today is going, or look at what to buy?", zh: "我在呢，外婆。想听听今天怎么样，还是看看要买什么？", ko: "저 여기 있어요, 할머니. 오늘 어땠는지 들어보실래요, 아니면 살 것부터 볼까요?", vi: "Con đây, bà ơi. Bà muốn nghe hôm nay thế nào, hay xem cần mua gì ạ?" },
 };
 
 async function upsertAgent(kind: "customer" | "helper", envKey: string, persona: string, tools: Tool[]) {
@@ -79,10 +79,13 @@ async function upsertAgent(kind: "customer" | "helper", envKey: string, persona:
     conversation_config: {
       agent: {
         first_message: fm.en, language: "en",
-        prompt: { prompt: fill(persona), llm: config.agentLlm, temperature: 0.6, tool_ids: toolIds },
+        prompt: {
+          prompt: fill(persona), llm: config.agentLlm, temperature: 0.6, tool_ids: toolIds,
+          built_in_tools: { language_detection: { type: "system", name: "language_detection", params: { system_tool_type: "language_detection" } } },
+        },
       },
       tts: { voice_id: process.env[kind === "customer" ? "ELEVENLABS_VOICE_CUSTOMER" : "ELEVENLABS_VOICE_HELPER"] || config.voices[kind] },
-      language_presets: Object.fromEntries((["es", "zh", "fr"] as const).map((l) => [l, { overrides: { agent: { first_message: fm[l] } } }])),
+      language_presets: Object.fromEntries((["zh", "ko", "vi"] as const).map((l) => [l, { overrides: { agent: { first_message: fm[l] } } }])),
     },
   };
   const existingId = process.env[envKey];

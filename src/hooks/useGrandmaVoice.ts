@@ -100,7 +100,15 @@ export function useGrandmaVoice(opts: { agent: "customer" | "helper"; lang: stri
     } finally { setThinking(false); }
   }, [conversation, fallback, transcript, opts.agent, opts.lang]);
 
+  const seedGrandma = useCallback((text: string) => {
+    setTranscript((t) => (t.some((x) => x.text === text) ? t : [...t, { role: "grandma", text }]));
+  }, []);
+
+  const sendContext = useCallback((text: string) => {
+    try { conversation.sendContextualUpdate(text); } catch {}
+  }, [conversation]);
+
   const avatarState: AvatarState = !connected ? "idle" : conversation.isSpeaking ? "speaking" : thinking ? "thinking" : mode === "voice" ? "listening" : "idle";
 
-  return { status, mode, fallback, isSpeaking: conversation.isSpeaking, volume, transcript, error, avatarState, start, stop, sendText };
+  return { status, mode, fallback, seedGrandma, sendContext, isSpeaking: conversation.isSpeaking, volume, transcript, error, avatarState, start, stop, sendText };
 }
