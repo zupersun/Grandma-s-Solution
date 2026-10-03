@@ -78,7 +78,7 @@ function Screen() {
           </p>
         </header>
 
-        <LiveBanner events={feed.events} />
+        <LiveBanner events={feed.events} onGo={(kind) => setTab(kind === "order" ? "orders" : "customers")} />
 
         <nav style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           {TABS.map(([id, text]) => {

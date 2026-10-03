@@ -1,21 +1,24 @@
 "use client";
+/* Exactly the customer voice-screen crop from the spec: a 200x188 window with the art at
+   310x310 offset -41.5 / -43.7, the 78% mask fade, and the same silhouette glow. */
 import { useAsset } from "@/components/SafeImg";
 
-/** Grandma's helper portrait: the same art, with the spec's silhouette glow. */
-export function HelperAvatar({ talking, listening, size = 190 }: { talking: boolean; listening: boolean; size?: number }) {
+export function HelperAvatar({ talking, listening }: { talking: boolean; listening: boolean }) {
   const still = useAsset("/grandma/grandma.png");
   const talk = useAsset("/grandma/grandma-talking.png");
   const cls = `gm-aura is-voice${talking ? " on" : listening ? " listen" : ""}`;
+  const img: React.CSSProperties = { position: "absolute", left: -41.5, top: -43.7, width: 310, height: 310, maxWidth: "none" };
+  const fade = "linear-gradient(to bottom,#000 78%,transparent 100%)";
   return (
-    <div className={cls} style={{ width: size, height: size, flexShrink: 0 }}>
-      <div style={{ position: "relative", width: size, height: size, overflow: "hidden", WebkitMaskImage: "linear-gradient(to bottom,#000 80%,transparent 100%)", maskImage: "linear-gradient(to bottom,#000 80%,transparent 100%)" }}>
+    <div className={cls} style={{ width: 200, height: 188, flexShrink: 0 }}>
+      <div style={{ position: "relative", width: 200, height: 188, overflow: "hidden", WebkitMaskImage: fade, maskImage: fade }}>
         {still === "ok" ? (
           <>
-            <img src="/grandma/grandma.png" alt="" style={{ position: "absolute", inset: 0, width: size, height: size, objectFit: "contain" }} />
-            {talk === "ok" && <img src="/grandma/grandma-talking.png" alt="" style={{ position: "absolute", inset: 0, width: size, height: size, objectFit: "contain", opacity: talking ? 1 : 0, transition: "opacity 140ms ease-in-out" }} />}
+            <img src="/grandma/grandma.png" alt="" style={img} />
+            {talk === "ok" && <img src="/grandma/grandma-talking.png" alt="" style={{ ...img, opacity: talking ? 1 : 0, transition: "opacity 140ms ease-in-out" }} />}
           </>
         ) : (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: size * 0.62 }}>{talking ? "\u{1F60A}" : "\u{1F475}"}</div>
+          <div style={{ ...img, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 150 }}>{talking ? "\u{1F60A}" : "\u{1F475}"}</div>
         )}
       </div>
     </div>

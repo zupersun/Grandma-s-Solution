@@ -112,7 +112,7 @@ export function FeedbackFeed({ options, tally, suggestions, requests, stats, eve
           <ul style={{ margin: "14px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
             {events.slice(0, 8).map((e) => (
               <li key={e.key} style={{ display: "flex", gap: 12, alignItems: "baseline", fontSize: 20, paddingBottom: 10, borderBottom: BORDER }}>
-                <span style={{ width: 10, height: 10, borderRadius: 5, background: C.maroon, flexShrink: 0 }} />
+                <span aria-hidden style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{e.icon}</span>
                 <span style={{ flex: 1 }}>{e.text}</span>
                 <span style={{ fontSize: 15, color: C.muted, flexShrink: 0 }}>{Math.max(0, Math.round((Date.now() - e.at) / 60000))} min ago</span>
               </li>
