@@ -45,6 +45,7 @@ function Bakeria() {
   const [tapped, setTapped] = useState(false);
   const [sheet, setSheet] = useState(false);
   const [typed, setTyped] = useState("");
+  const [pendingOrder, setPendingOrder] = useState<string | null>(null);
   const [shown, setShown] = useState<Record<number, number>>({});
   const scrollEl = useRef<HTMLDivElement | null>(null);
   const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,7 +56,15 @@ function Bakeria() {
   const clientTools: ClientTools = useMemo(() => ({
     addLoyaltyPoints: async ({ reason }) => { const r = await api<{ points: number; awarded: number }>("/api/loyalty", { method: "POST", json: { customerId: customer.id, reason: (reason as string) || "chat" } }); customer.bumpPoints(r.points); return r.awarded ? `Gave ${r.awarded} points, ${r.points} total.` : `They already have ${r.points} points today.`; },
     addToCart: async ({ itemSlug, qty }) => { const m = menu.find((x) => x.slug === itemSlug || x.names.en?.toLowerCase() === String(itemSlug).toLowerCase()); if (!m) return `I don't have that. I do have: ${menu.slice(0, 8).map((x) => x.names.en).join(", ")}.`; const n = Number(qty) || 1; cart.add(m.slug, n); return `Set aside ${n} ${m.names.en}. That comes to $${(cart.total + m.price * n).toFixed(2)}.`; },
-    placeOrder: async () => { if (!cart.lines.length) return "Nothing set aside yet, dear."; const { orderId, url } = await cart.checkout(); if (url) { window.location.href = url; return "Sending them to pay."; } router.push(`/order/${orderId}`); return "All wrapped up. The pickup code is on their screen."; },
+    placeOrder: async () => {
+      if (!cart.lines.length) return "Nothing set aside yet, dear.";
+      const { orderId, url } = await cart.checkout();
+      if (url) { window.location.href = url; return "Sending them to pay."; }
+      let code = "";
+      try { const d = await api<{ order: { pickupCode: string } }>(`/api/orders/${orderId}`); code = d.order.pickupCode; } catch {}
+      setPendingOrder(orderId);
+      return code ? `Done. Their number is ${code}.` : "Done. Their number is on the screen.";
+    },
     voteFlavour: async ({ option }) => { const o = votes.options.find((x) => x.id === option || x.label.en?.toLowerCase() === String(option).toLowerCase()); if (!o) return `The choices are ${votes.options.map((x) => x.label.en).join(", ")}.`; const r = await votes.vote(o.id); customer.refresh(); return `Voted ${o.label.en}.${r.awarded ? ` +${r.awarded} points.` : ""}`; },
     submitSuggestion: async ({ text }) => { const r = await suggestions.submit(String(text), "voice"); customer.refresh(); return r.note ?? `Written in my recipe book. +${r.awarded} points.`; },
     logRequest: async ({ text, itemHint }) => { await requests.log(customer.id, String(text), itemHint ? String(itemHint) : undefined, "voice"); return "Noted for my helper."; },
@@ -98,6 +107,15 @@ function Bakeria() {
   }, [tapped, voice]);
 
   const live = voice.status === "connected";
+
+  // Let Grandma finish her sentence before the order screen takes over.
+  useEffect(() => {
+    if (!pendingOrder) return;
+    const go = () => router.push(`/order/${pendingOrder}`);
+    const cap = setTimeout(go, 6000);
+    if (!talking) { const soon = setTimeout(go, 900); return () => { clearTimeout(soon); clearTimeout(cap); }; }
+    return () => clearTimeout(cap);
+  }, [pendingOrder, talking, router]);
 
   const micPress = useCallback(() => {
     if (!live) { voice.start("voice"); return; }
