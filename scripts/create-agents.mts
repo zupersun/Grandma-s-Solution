@@ -81,7 +81,7 @@ async function upsertAgent(kind: "customer" | "helper", envKey: string, persona:
         first_message: fm.en, language: "en",
         prompt: { prompt: fill(persona), llm: config.agentLlm, temperature: 0.6, tool_ids: toolIds },
       },
-      tts: { voice_id: config.voices[kind] },
+      tts: { voice_id: process.env[kind === "customer" ? "ELEVENLABS_VOICE_CUSTOMER" : "ELEVENLABS_VOICE_HELPER"] || config.voices[kind] },
       language_presets: Object.fromEntries((["es", "zh", "fr"] as const).map((l) => [l, { overrides: { agent: { first_message: fm[l] } } }])),
     },
   };

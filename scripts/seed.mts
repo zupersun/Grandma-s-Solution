@@ -91,7 +91,8 @@ const popularity: Array<[string, number]> = [
   ["drip-coffee", 22], ["butter-croissant", 14], ["mango-pie", 11], ["egg-tart", 9], ["cinnamon-bun", 8],
   ["apple-pie", 7], ["sourdough-loaf", 6], ["ube-cake", 6], ["pistachio-croissant", 5], ["black-sesame-cookie", 5],
   ["vanilla-pudding", 4], ["chocolate-pudding", 3],
-];
+  ["berry-parfait", 9], ["mango-parfait", 10], ["chocolate-parfait", 6],
+].filter(([slug]) => menu.some((m) => m.slug === slug)) as Array<[string, number]>;
 const orderRows: (typeof orders.$inferInsert)[] = [];
 const itemRows: (typeof orderItems.$inferInsert)[] = [];
 const pointsRows: (typeof loyaltyEvents.$inferInsert)[] = [];
