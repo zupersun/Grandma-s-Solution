@@ -89,7 +89,9 @@ export function useGrandmaVoice(opts: { agent: "customer" | "helper"; lang: stri
     const clean = text.trim();
     if (!clean) return;
     setTranscript((t) => [...t, { role: "user", text: clean }]);
-    if (!fallback) { conversation.sendUserMessage(clean); return; }
+    if (!fallback) {
+      try { conversation.sendUserMessage(clean); return; } catch { /* no live session: answer over the API instead */ }
+    }
     setThinking(true);
     try {
       const history = [...transcript, { role: "user" as const, text: clean }].slice(-12).map((t) => ({ role: t.role === "user" ? "user" : "assistant", content: t.text }));

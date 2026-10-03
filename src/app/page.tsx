@@ -35,7 +35,7 @@ const CHIPS: { topic: Topic; icon: string; size: number; emoji: string }[] = [
 function Icon({ name, size, emoji, className }: { name: string; size: number; emoji: string; className?: string }) {
   return (
     <SafeImg src={`/grandma/${name}.svg`} className={className} style={{ display: "block", width: size, height: size, flexShrink: 0 }}
-      fallback={<span className={className} style={{ fontSize: size + 3, lineHeight: 1, flexShrink: 0 }}>{emoji}</span>} />
+      fallback={<span className={className} style={{ fontSize: size, lineHeight: 1, flexShrink: 0 }}>{emoji}</span>} />
   );
 }
 
@@ -198,7 +198,7 @@ function Bakeria() {
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0" /><path d="M12 18v3" /></svg>
                   )}
                 </button>
-                <form onSubmit={(e) => { e.preventDefault(); if (!typed.trim()) return; if (voice.status !== "connected") voice.start("text").then(() => voice.sendText(typed)); else voice.sendText(typed); setTyped(""); }} style={{ display: "flex", gap: 8, width: "100%" }}>
+                <form onSubmit={(e) => { e.preventDefault(); const m = typed.trim(); if (!m) return; setTyped(""); voice.sendText(m); }} style={{ display: "flex", gap: 8, width: "100%" }}>
                   <label htmlFor="gm-type" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>{t.typeInstead}</label>
                   <input id="gm-type" value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={t.typeInstead} autoComplete="off"
                     style={{ flex: 1, minWidth: 0, height: 44, boxSizing: "border-box", padding: "0 16px", border: BORDER, borderRadius: 22, font: "inherit", fontSize: 15, color: "#2b2222", background: "#fff" }} />
@@ -246,7 +246,7 @@ function Bakeria() {
 
 function Shelves() {
   return (
-    <SafeImg src="/grandma/shelves.png" style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, objectFit: "cover", pointerEvents: "none" }}
+    <SafeImg src="/grandma/shelves.png" style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 448, objectFit: "contain", objectPosition: "top", pointerEvents: "none" }}
       fallback={
         <div aria-hidden style={{ position: "absolute", left: 0, top: 264.63, width: 402, height: 402, pointerEvents: "none" }}>
           {[0, 1, 2].map((i) => (
@@ -259,7 +259,7 @@ function Shelves() {
 
 function Awning() {
   return (
-    <SafeImg src="/grandma/awning.png" width={489} height={251} style={{ position: "absolute", left: -85, top: -90, display: "block", pointerEvents: "none" }}
+    <SafeImg src="/grandma/awning.png" width={402} height={170} style={{ position: "absolute", left: 0, top: 0, width: 402, height: "auto", display: "block", pointerEvents: "none" }}
       fallback={
         <div aria-hidden style={{ position: "absolute", left: 0, top: 0, width: 402, height: 86, pointerEvents: "none", background: "repeating-linear-gradient(90deg, #a3243b 0 30px, #f6f1eb 30px 60px)", borderBottomLeftRadius: "50% 26px", borderBottomRightRadius: "50% 26px", boxShadow: "0 6px 14px rgba(43,34,34,.12)" }} />
       } />
